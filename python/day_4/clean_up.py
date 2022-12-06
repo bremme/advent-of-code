@@ -56,5 +56,3 @@ if __name__ == "__main__":
         input_file = "puzzle_input_example.txt"
 
     main(input_file)
-
-# 485 it too high
