@@ -8,12 +8,6 @@ from day_3.rucksack_reorganization import (
 
 
 class TestRuckSackReorganization(unittest.TestCase):
-
-    # read items_in_rucksack
-    # split into compartments items_in_rucksack_compartments
-    # Find item(s) in both compartments
-    # find priority of item
-
     def test_split_rucksack_content_into_compartments(self):
         expected_compartments = [
             ("vJrwpWtwJgWrhcsFMMfFFhFp", "vJrwpWtwJgWr", "hcsFMMfFFhFp"),
