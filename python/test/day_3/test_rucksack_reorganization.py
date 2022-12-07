@@ -1,6 +1,6 @@
 import unittest
 
-from day_3.rucksack_reorganization import (
+from puzzles.day_3.rucksack_reorganization import (
     find_items_in_both_compartments,
     get_item_priority,
     split_rucksack_content_into_compartments,

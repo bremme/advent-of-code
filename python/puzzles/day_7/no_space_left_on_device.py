@@ -66,6 +66,14 @@ class Directory(FileSystemObject):
         return self.content[".."]
 
 
+def find_root(directory: Directory):
+    cwd = directory
+    while cwd.get_parent_directory() is not None:
+        cwd = directory.get_parent_directory()
+
+    return cwd
+
+
 def parse_commands(lines) -> list[tuple[str, list]]:
     commands_and_output = []
     command_index = None
@@ -82,14 +90,6 @@ def parse_commands(lines) -> list[tuple[str, list]]:
         commands_and_output[command_index][1].append(output)
 
     return commands_and_output
-
-
-def find_root(directory: Directory):
-    cwd = directory
-    while cwd.get_parent_directory() is not None:
-        cwd = directory.get_parent_directory()
-
-    return cwd
 
 
 def parse_puzzle_input(lines: list[str]) -> Directory:
