@@ -52,6 +52,10 @@ def parse_procedure(lines):
     return procedures
 
 
+def get_crates_on_top(stacks):
+    return "".join([stack[-1] for stack in stacks])
+
+
 def part_one(lines):
     stacks = parse_stacks(lines)
 
@@ -62,12 +66,25 @@ def part_one(lines):
         for _ in range(num_to_move):
             stacks[to_stack - 1].append(stacks[from_stack - 1].pop())
 
-    top_crates = "".join([stack[-1] for stack in stacks])
+    top_crates = get_crates_on_top(stacks)
     print(top_crates)
 
 
 def part_two(lines):
-    pass
+    stacks = parse_stacks(lines)
+
+    procedures = parse_procedure(lines)
+
+    for (num_to_move, from_stack, to_stack) in procedures:
+
+        moved_crates = [stacks[from_stack - 1].pop() for _ in range(num_to_move)]
+        moved_crates.reverse()
+
+        stacks[to_stack - 1].extend(moved_crates)
+
+    top_crates = get_crates_on_top(stacks)
+
+    print(top_crates)
 
 
 def main(input_file):
