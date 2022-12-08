@@ -1,6 +1,6 @@
 import string
-import sys
-from pathlib import Path
+
+from aoc_2022.utils import utils
 
 
 def split_rucksack_content_into_compartments(content: str):
@@ -18,13 +18,16 @@ def find_items_in_both_compartments(first_compartment, second_compartment):
             continue
 
         # don't store duplicates
-        if item not in items_in_both_compartments:
-            items_in_both_compartments.append(item)
+        if item in items_in_both_compartments:
+            continue
+
+        items_in_both_compartments.append(item)
 
     return items_in_both_compartments
 
 
 def find_badge_of_group(rucksacks):
+    # item that is found in all three rucksacks is the group badge
     intersection = set.intersection(
         set(rucksacks[0]), set(rucksacks[1]), set(rucksacks[2])
     )
@@ -32,16 +35,18 @@ def find_badge_of_group(rucksacks):
 
 
 def get_item_priority(item: str):
+    # a through z have priority 1 through 26
     if item.islower():
         return string.ascii_lowercase.index(item) + 1
 
+    # A through Z have priority 27 through 52
     if item.isupper():
         return string.ascii_uppercase.index(item) + 26 + 1
 
     raise ValueError(f"Item should be one [a-z|A-Z] character: '{item}'")
 
 
-def part_one(lines):
+def solve_part_one(lines):
     sum_of_priorities = 0
 
     for content in lines:
@@ -54,35 +59,33 @@ def part_one(lines):
         )[0]
         sum_of_priorities += get_item_priority(duplicate_item)
 
-    print(f"Total priorities part 1: {sum_of_priorities}")
+    return sum_of_priorities
 
 
-def part_two(lines):
+def solve_part_two(lines):
+    NUM_ELVES_IN_GROUP = 3
     sum_of_priorities = 0
 
-    for i in range(0, len(lines) + 1 - 3, 3):
-        group_rucksacks = lines[i : i + 3]
+    for i in range(0, len(lines) + 1 - NUM_ELVES_IN_GROUP, NUM_ELVES_IN_GROUP):
+        group_rucksacks = lines[i : i + NUM_ELVES_IN_GROUP]
         badge = find_badge_of_group(group_rucksacks)
         sum_of_priorities += get_item_priority(badge)
 
-    print(f"Total priorities part 2: {sum_of_priorities}")
+    return sum_of_priorities
 
 
-def main(input_file):
-    input_file_path = Path(__file__).with_name(input_file)
+def main():
+    args = utils.parse_args()
+    lines = utils.read_puzzle_input_file(args.input_file)
 
-    with open(input_file_path, "r") as fh:
-        lines = [l for l in fh.read().splitlines()]
+    print("--- Day 3: Rucksack Reorganization ---")
+    sum_of_priorities_part_one = solve_part_one(lines)
+    print(f"Total priorities: {sum_of_priorities_part_one}")
 
-    part_one(lines)
-    part_two(lines)
+    print("--- Part Two ---")
+    sum_of_priorities_part_two = solve_part_two(lines)
+    print(f"Total priorities: {sum_of_priorities_part_two}")
 
 
 if __name__ == "__main__":
-    input_file = "puzzle_input.txt"
-
-    if len(sys.argv) >= 2 and sys.argv[1] == "example":
-        print("Using example data")
-        input_file = "puzzle_input_example.txt"
-
-    main(input_file)
+    main()
