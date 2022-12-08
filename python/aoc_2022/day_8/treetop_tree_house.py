@@ -64,20 +64,15 @@ def look_from_side(forest_tree_height, forest_tree_visible, side):
         forest_tree_height_view = numpy.rot90(forest_tree_height, k=3)
         forest_tree_visible_view = numpy.rot90(forest_tree_visible, k=3)
 
-    num_rows = len(forest_tree_height_view)
-    num_cols = len(forest_tree_visible_view[0])
-
     for row_index, row in enumerate(forest_tree_height_view):
 
         highest_tree_in_row = 0
 
         for col_index, tree_height in enumerate(row):
 
-            # check if tree is around the edge
+            # check if tree is at the edge
             if col_index == 0:
                 highest_tree_in_row = tree_height
-                # if tree_height == 0:
-                #     continue
                 forest_tree_visible_view[row_index][col_index] = "Y"
                 continue
 
@@ -124,12 +119,106 @@ def part_one(lines):
 
     print(numpy.count_nonzero(forest_tree_visible == "Y"))
 
-    # 1501 too low
-    # 1602 too low
+
+def get_number_of_visible_trees(forest, row_index, col_index, direction):
+
+    num_rows = len(forest)
+    num_cols = len(forest[0])
+
+    def update_index(row_index, col_index):
+        if direction == "up":
+            row_index -= 1
+
+        if direction == "left":
+            col_index -= 1
+
+        if direction == "right":
+            col_index += 1
+
+        if direction == "down":
+            row_index += 1
+
+        return row_index, col_index
+
+    if is_edge(row_index, col_index, num_rows, num_cols):
+        return 0
+
+    treehouse_height = forest[row_index, col_index]
+    num_visible_trees = 0
+    highest_tree_in_direction = 0
+
+    while True:
+
+        # update index
+        row_index, col_index = update_index(row_index, col_index)
+
+        tree_height = forest[row_index, col_index]
+
+        # if tree_height >= highest_tree_in_direction:
+        num_visible_trees += 1
+
+        # set new highest tree in this direction
+        # if tree_height > highest_tree_in_direction:
+        #     highest_tree_in_direction = tree_height
+
+        # if this tree is equal or higher we can't see anymore trees
+        if tree_height >= treehouse_height:
+            break
+
+        if is_edge(row_index, col_index, num_rows, num_cols):
+            break
+
+    return num_visible_trees
+
+
+def calculate_scenic_score(forest, row_index, col_index):
+    # how many visible trees up
+    num_visible_trees_up = get_number_of_visible_trees(
+        forest, row_index, col_index, "up"
+    )
+    # how many visible trees left
+    num_visible_trees_left = get_number_of_visible_trees(
+        forest, row_index, col_index, "left"
+    )
+    # how many visible trees down
+    num_visible_trees_down = get_number_of_visible_trees(
+        forest, row_index, col_index, "down"
+    )
+    # how many visible trees right
+    num_visible_trees_right = get_number_of_visible_trees(
+        forest, row_index, col_index, "right"
+    )
+
+    # print("up", num_visible_trees_up)
+    # print("left", num_visible_trees_left)
+    # print("down", num_visible_trees_down)
+    # print("right", num_visible_trees_right)
+
+    return (
+        num_visible_trees_up
+        * num_visible_trees_left
+        * num_visible_trees_right
+        * num_visible_trees_down
+    )
 
 
 def part_two(lines):
-    pass
+    # find tree with highest scenic score
+    forest = parse_forest_tree_height(lines)
+    scenic_scores = numpy.zeros(forest.shape)
+
+    # example puzzle input
+    print(calculate_scenic_score(forest, 1, 2))  # 4
+    print(calculate_scenic_score(forest, 3, 2))  # 8
+
+    for row_index, row in enumerate(forest):
+        for col_index, _ in enumerate(row):
+            scenic_scores[row_index, col_index] = calculate_scenic_score(
+                forest, row_index, col_index
+            )
+
+    print(scenic_scores)
+    print(scenic_scores.max())
 
 
 def main(input_file):
@@ -138,7 +227,7 @@ def main(input_file):
     with open(input_file_path, "r") as fh:
         lines = [line for line in fh.read().splitlines()]
 
-    part_one(lines)
+    # part_one(lines)
     part_two(lines)
 
 
