@@ -19,11 +19,10 @@ class TestRuckSackReorganization(unittest.TestCase):
             ("PmmdzqPrVvPwwTWBwg", "PmmdzqPrV", "vPwwTWBwg"),
         ]
 
-        for (
-            content,
-            expected_first_compartment,
-            expected_second_compartment,
-        ) in expected_compartments:
+        for expectation in expected_compartments:
+            content = expectation[0]
+            expected_first_compartment = expectation[1]
+            expected_second_compartment = expectation[2]
             (
                 first_compartment,
                 second_compartment,
