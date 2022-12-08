@@ -1,6 +1,7 @@
-import sys
+from aoc_2022 import utils
 
 opponent_shapes = {"A": "Rock", "B": "Paper", "C": "Scissors"}
+
 my_shapes = {"X": "Rock", "Y": "Paper", "Z": "Scissors"}
 
 shape_scores = {"Rock": 1, "Paper": 2, "Scissors": 3}
@@ -60,26 +61,26 @@ def determine_shape(opponent_shape, outcome):
         return "Paper"
 
 
-def part_one(data):
+def solve_part_one(lines):
     total_score = 0
 
-    for line in data.splitlines():
+    for line in lines:
         opponent_encrypted_shape, my_encrypted_shape = line.split(" ")
 
         opponent_shape = opponent_shapes[opponent_encrypted_shape]
         my_shape = my_shapes[my_encrypted_shape]
 
         score = calculate_score(opponent_shape, my_shape)
-        print(line, score)
+        # print(line, score)
         total_score += score
 
-    print(f"Total score part 1: {total_score}")
+    return total_score
 
 
-def part_two(data):
+def solve_part_two(lines):
     total_score = 0
 
-    for line in data.splitlines():
+    for line in lines:
         opponent_encrypted_shape, encrypted_outcome = line.split(" ")
 
         opponent_shape = opponent_shapes[opponent_encrypted_shape]
@@ -88,26 +89,25 @@ def part_two(data):
         my_shape = determine_shape(opponent_shape, outcome)
 
         score = calculate_score(opponent_shape, my_shape)
-        print(line, score)
+        # print(line, score)
         total_score += score
 
-    print(f"Total score part 2: {total_score}")
+    return total_score
 
 
 def main(input_file):
 
-    with open(input_file, "r") as fh:
-        data = fh.read()
+    args = utils.parse_args()
+    lines = utils.read_puzzle_input_file(args.input_file)
 
-    part_one(data)
-    part_two(data)
+    print("--- Day 2: Rock Paper Scissors ---")
+    total_score_part_one = solve_part_one(lines)
+    print(f"Total score: {total_score_part_one}")
+
+    print("--- Part Two ---")
+    total_score_part_two = solve_part_two(lines)
+    print(f"Total score: {total_score_part_two}")
 
 
 if __name__ == "__main__":
-    input_file = "puzzle_input.txt"
-
-    if len(sys.argv) >= 2 and sys.argv[1] == "example":
-        print("Using example data")
-        input_file = "puzzle_input_example.txt"
-
-    main(input_file)
+    main()

@@ -29,9 +29,8 @@ def solve_part_one(elf_calories: list[int]) -> int:
     num_elves = len(elf_calories)
     highest_calories, carried_by_elf = find_elf_carrying_the_most_calories(elf_calories)
 
-    print(f"Number of elves: {num_elves}")
-    print(f"Highest number of calories: {highest_calories}")
-    print(f"Carried by elf: {carried_by_elf}")
+    # print(f"Number of elves: {num_elves}")
+    # print(f"Carried by elf: {carried_by_elf}")
 
     return highest_calories
 
@@ -51,10 +50,11 @@ def main():
 
     elf_calories = parse_how_many_calories_are_carried_by_each_elf(lines)
 
-    print("\nPart one")
-    solve_part_one(elf_calories)
+    print("--- Day 1: Calorie Counting ---")
+    highest_calories = solve_part_one(elf_calories)
+    print(f"Highest number of calories: {highest_calories}")
 
-    print("\nPart two")
+    print("--- Part Two ---")
     total_calories_top_three = solve_part_two(elf_calories)
     print(f"Total calories top three: {total_calories_top_three}")
 
