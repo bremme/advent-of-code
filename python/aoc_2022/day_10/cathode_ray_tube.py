@@ -1,24 +1,19 @@
+from dataclasses import dataclass
+from typing import Optional
+
 from aoc_2022.utils import utils
 
-
-class ClockCircuit:
-    pass
 
 class Memory:
 
     def __init__(self, instructions) -> None:
-
         self.instructions = [i for i in reversed(instructions)]
 
-    # def get_instruction(self):
 
-
+@dataclass
 class Instruction:
-
-    def __init__(self, command, arg=None) -> None:
-        self.command = command
-        self.arg = arg
-
+    command: str
+    arg: Optional[int] = None
 
 
 class CPU:
@@ -31,13 +26,6 @@ class CPU:
         self.cycle = 1
         self.signal_strength = {}
         self.total_signal_strength = 0
-
-
-    # def addx(self, v):
-    #     pass
-
-    # def noop(self):
-    #     pass
 
     def tick(self):
 
@@ -61,15 +49,20 @@ class CPU:
 
         self.cycle += 1
 
+class Clock:
+
+    def __init__(self, cpu) -> None:
+        self.cpu = cpu
+
+    def run(self):
+        while True:
+            self.cpu.tick()
+            if self.cpu.state == "done":
+                break
 
 
 
-
-
-
-
-
-def solve_part_one(lines):
+def parse_instructions(lines):
     instructions = []
     for line in lines:
         parts = line.split()
@@ -80,14 +73,19 @@ def solve_part_one(lines):
         arg = int(parts[1])
         instructions.append(Instruction(command, arg))
 
+    return instructions
+
+
+
+
+def solve_part_one(lines):
+    instructions = parse_instructions(lines)
+
     memory = Memory(instructions)
     cpu = CPU(memory=memory)
+    clock = Clock(cpu=cpu)
 
-    # ClockCircuit
-    while True:
-        cpu.tick()
-        if cpu.state == "done":
-            break
+    clock.run()
 
     return cpu.total_signal_strength
 
