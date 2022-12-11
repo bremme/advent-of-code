@@ -2,139 +2,99 @@ import numpy
 from aoc_2022.utils import utils
 
 
+class Point:
+    MOVEMENT_TABLE = {
+        # direction : (row, col)
+        "0": (0, 0),
+        "N": (1, 0),
+        "NE": (1, 1),
+        "E": (0, 1),
+        "SE": (-1, 1),
+        "S": (-1, 0),
+        "SW": (-1, -1),
+        "W": (0, -1),
+        "NW": (1, -1),
+    }
+
+    def __init__(self, row=0, col=0) -> None:
+        self.row = row
+        self.col = col
+
+    @property
+    def position(self):
+        return self.row, self.col
+
+    def move(self, direction):
+        movement = self.MOVEMENT_TABLE[direction]
+        self.row += movement[0]
+        self.col += movement[1]
+
+
+class PlayGround:
+    def __init__(self) -> None:
+        pass
+
+
 def parse_series_of_motions(lines):
     series_of_motions = []
     for line in lines:
-        direction, steps = line.split()[0], int(line.split()[1])
+        direction = convert_to_cardinal_direction(line.split()[0])
+        steps = int(line.split()[1])
 
         series_of_motions.append((direction, steps))
 
     return series_of_motions
 
 
-def determine_size_of_playground(series_of_motions):
-    row_index = 0
-    col_index = 0
-    rows = 0
-    cols = 0
+def determine_playground(series_of_motions):
+    x, y = 0, 0
 
-    # assume 0,0 is bottom left
+    x_coordinates = [x]
+    y_coordinates = [y]
+
+    # Use Cartesian coordinates
     for direction, steps in series_of_motions:
 
-        if direction == "L":
-            col_index -= steps
-        if direction == "R":
-            col_index += steps
+        for _ in range(steps):
+            x, y = move((x, y), direction)
+            x_coordinates.append(x)
+            y_coordinates.append(y)
 
-        if direction == "U":
-            row_index += steps
-        if direction == "D":
-            row_index -= steps
+    x_min, x_max = min(x_coordinates), max(x_coordinates)
+    y_min, y_max = min(y_coordinates), max(y_coordinates)
 
-        print(row_index, col_index)
+    size_x = x_max - x_min + 1
+    size_y = y_max - y_min + 1
 
-        if row_index > rows:
-            rows = row_index
-        if col_index > cols:
-            cols = col_index
+    start = abs(x_min), abs(y_min)
 
-    return rows + 1, cols + 1
+    return start, (size_x, size_y)
 
 
-def point_touches_other_point(point, other_point):
-    #  NW N NE
-    #   W X  E
-    #  SW S SE
-    x1, y1 = point
-    x2, y2 = other_point
+def determine_playground_2(series_of_motions):
+    position = Point()
 
-    # horizonal and vertical distance is less or equal then 1
-    return abs(x1 - x2) <= 1 and abs(y1 - y2) <= 1
+    visited_rows = []
+    visited_cols = []
 
-    # special case, same position
-    if x1 == x2 and y1 == y2:
-        return True
+    for direction, steps in series_of_motions:
+        for _ in range(steps):
+            position.move(direction)
+            visited_rows.append(position.row)
+            visited_cols.append(position.col)
 
-    # Left or Right
-    if y1 == y2 and abs(x2 - x1) == 1:
-        return True
+    row_min, row_max = min(visited_rows), max(visited_rows)
+    col_min, col_max = min(visited_cols), max(visited_cols)
 
-    # Up or Down
-    if x1 == x2 and abs(y2 - y1) == 1:
-        return True
+    num_rows = row_max - row_min + 1
+    num_cols = col_max - col_min + 1
 
-    # NE, SE, SW, NW
-    if abs(x2 - x1) == 1 and abs(y2 - y1) == 1:
-        return True
+    start = Point(row=abs(row_min), col=abs(col_min))
 
-    return False
+    return start, (num_rows, num_cols)
 
 
-# def get_relative_position():
-#  NW   N NE
-#   W   X   E   1E
-#  SW   S   SE  S1E
-# 1SW  1S   1SE
-
-
-# def move_tail(head_position, tail_position):
-#     head_x, head_y = head_position
-#     tail_x, tail_y = tail_position
-
-#     # Move Right
-#     if head_y == tail_y and (head_x - tail_x) == 1:
-#         return move(tail_position, "R")
-#     # Move Left
-#     if head_y == tail_y and (head_x - tail_x) == -1:
-#         return move(tail_position, "L")
-#     # Move Up
-#     if head_x == tail_x and (head_y - tail_y) == 1:
-#         return move(tail_position, "U")
-#     # Move Down
-#     if head_x == tail_x and (head_y - tail_y) == -1:
-#         return move(tail_position, "D")
-
-#     raise RuntimeError("")
-
-
-def calculate_tail_movement(head, tail) -> tuple[str, int]:
-    x1, y1 = head
-    x2, y2 = tail
-
-    horizontal = x2 - x1
-    vertical = y2 - y1
-
-    breakpoint()
-
-    if abs(horizontal) <= 1 and abs(vertical) <= 1:
-        return "-"
-
-    if horizontal == 2 and abs(vertical) <= 1:
-        return "W"
-
-    if horizontal == -2 and abs(vertical) <= 1:
-        return "E"
-
-    if abs(horizontal) <= 1 and vertical == -2:
-        return "N"
-
-    if abs(horizontal) <= 1 and vertical == 2:
-        return "S"
-
-    if horizontal == 2 and vertical == 2:
-        return "SW"
-
-    if horizontal == 2 and vertical == -2:
-        return "NW"
-
-    if horizontal == -2 and vertical == -2:
-        return "NE"
-
-    if horizontal == -2 and vertical == 2:
-        return "SE"
-
-
-def calculate_tail_movement2(head, tail):
+def calculate_tail_movement(head, tail):
 
     x1, y1 = head
     x2, y2 = tail
@@ -143,7 +103,7 @@ def calculate_tail_movement2(head, tail):
     delta_y = y2 - y1
 
     # center is 2, 2
-    direction_table = numpy.array(
+    DIRECTION_TABLE = numpy.array(
         [
             [None, "SE", "S", "SW", None],
             ["SE", "0", "0", "0", "SW"],
@@ -155,13 +115,16 @@ def calculate_tail_movement2(head, tail):
 
     x, y = 2 + delta_x, 2 + delta_y
 
-    direction = direction_table[::-1][y, x]
+    direction = DIRECTION_TABLE[::-1][y, x]
+
+    if direction is None:
+        raise RuntimeError("Can't calculate tail movement, something is wrong")
 
     return direction
 
 
-def move2(position, direction):
-    movement_table = {
+def move(position, direction):
+    MOVEMENT_TABLE = {
         "0": (0, 0),
         "N": (0, 1),
         "NE": (1, 1),
@@ -172,9 +135,10 @@ def move2(position, direction):
         "W": (-1, 0),
         "NW": (-1, 1),
     }
-    movement = movement_table[direction]
+    movement = MOVEMENT_TABLE[direction]
+    new_position = position[0] + movement[0], position[1] + movement[1]
 
-    return position[0] + movement[0], position[1] + movement[1]
+    return new_position
 
 
 def convert_to_cardinal_direction(direction):
@@ -186,83 +150,156 @@ def convert_to_cardinal_direction(direction):
     }[direction]
 
 
-def move(position, direction):
-    steps = 1
-    x, y = position
+class Robe:
+    def __init__(self, start: Point, number_of_knots) -> None:
+        self.knots: list[Point] = [
+            Point(start.row, start.col) for _ in range(number_of_knots + 1)
+        ]
+        self.number_of_knots = number_of_knots
 
-    if direction == "-":
-        return x, y
+    @property
+    def head(self):
+        return self.knots[0]
 
-    if direction in ["L", "W"]:
-        x -= steps
+    @property
+    def tail(self):
+        return self.knots[-1]
 
-    if direction in ["R", "E"]:
-        x += steps
+    def move_head(self, direction):
+        self.head.move(direction)
 
-    if direction in ["U", "N"]:
-        y += steps
 
-    if direction in ["D", "S"]:
-        y -= steps
+def solve_part_one_2(lines):
+    series_of_motions = parse_series_of_motions(lines)
+    start, size = determine_playground_2(series_of_motions)
+    print(f"Head starts at {start} on playground with size {size}")
 
-    if direction == "NE":
-        y += steps
-        x += steps
+    robe = Robe(start, number_of_knots=1)
+    # tail = Point(start.row, start.col)
+    visited_points_tail = {robe.tail.position}
 
-    if direction == "SE":
-        y -= steps
-        x += steps
+    counter = 0
 
-    if direction == "SW":
-        y -= steps
-        x -= steps
+    for direction, steps in series_of_motions:
 
-    if direction == "NW":
-        y += steps
-        x -= steps
+        print(f"== {direction} {steps} ==")
+        for _ in range(steps):
+            # Move head (step-=by-step)
+            robe.move_head(direction)
 
-    return x, y
+            tail
+
+            # Move tail (single step )
+            tail_direction = calculate_tail_movement(head_position, tail_position)
+            new_tail_position = move(tail_position, tail_direction)
+            print(
+                f"moved tail from {tail_position} to {new_tail_position} with move {tail_direction}"
+            )
+            tail_position = new_tail_position
+
+            # record unique visited tail positions
+            visited_points_tail.add(tail_position)
+            counter += 1
+
+    return len(visited_points_tail)
 
 
 def solve_part_one(lines):
     series_of_motions = parse_series_of_motions(lines)
-    # rows, cols = determine_size_of_playground(series_of_motions)
+    start, size = determine_playground(series_of_motions)
+    print(f"Head starts at {start} on playground with size {size}")
 
-    head_position = 0, 0
-    tail_position = 0, 0
+    head_position = start
+    tail_position = start
     visited_points_tail = {tail_position}
 
     counter = 0
 
     for direction, steps in series_of_motions:
-        direction = convert_to_cardinal_direction(direction)
+
         print(f"== {direction} {steps} ==")
         for _ in range(steps):
-            new_head_position = move2(head_position, direction)
+            # Move head (step-=by-step)
+            new_head_position = move(head_position, direction)
             print(
                 f"moved head from {head_position} to {new_head_position} with move {direction} ({counter})"
             )
             head_position = new_head_position
 
-            tail_direction = calculate_tail_movement2(head_position, tail_position)
-            # if movement_tail[0] == "-":
-            #     breakpoint()
-
-            # for tail_direction in tail_directions:
-            new_tail_position = move2(tail_position, tail_direction)
+            # Move tail (single step )
+            tail_direction = calculate_tail_movement(head_position, tail_position)
+            new_tail_position = move(tail_position, tail_direction)
             print(
                 f"moved tail from {tail_position} to {new_tail_position} with move {tail_direction}"
             )
             tail_position = new_tail_position
+
+            # record unique visited tail positions
             visited_points_tail.add(tail_position)
             counter += 1
 
-    print(visited_points_tail)
-    print(len(visited_points_tail))
+    return len(visited_points_tail)
+
+
+def print_playground(size, knot_positions):
+    lines = []
+    size_x, size_y = size
+
+    for y in range(size_y):
+        for x in range(size_x):
+            pass
 
 
 def solve_part_two(lines):
-    pass
+    series_of_motions = parse_series_of_motions(lines)
+    start, size = determine_playground(series_of_motions)
+    print(f"Head starts at {start} on playground with size {size}")
+
+    knot_positions = []
+    for _ in range(10):
+        knot_positions.append(start)
+
+    visited_points_tail = {start}
+
+    counter = 0
+
+    for direction, steps in series_of_motions:
+        print(f"== {direction} {steps} ==")
+        for _ in range(steps):
+            # Move head (step-=by-step)
+            head_position = knot_positions[0]
+            new_head_position = move(head_position, direction)
+            print(
+                f"\nmoved head from {head_position} to {new_head_position} with move {direction} ({counter})"
+            )
+            knot_positions[0] = new_head_position
+
+            for knot_index, knot_tail_position in enumerate(
+                knot_positions[1:], start=1
+            ):
+                # print(knot_index, knot_tail_position)
+                # Move knot
+                knot_head_position = knot_positions[knot_index - 1]
+
+                knot_direction = calculate_tail_movement(
+                    knot_head_position, knot_tail_position
+                )
+                new_knot_position = move(knot_tail_position, knot_direction)
+                print(
+                    f"moved knot {knot_index} from {knot_tail_position} to {new_knot_position} with move {knot_direction}"
+                )
+                knot_positions[knot_index] = new_knot_position
+
+                # record unique visited tail positions
+                if knot_index + 1 == len(knot_positions):
+                    visited_points_tail.add(new_knot_position)
+
+                # if knot_index == 2:
+                #     breakpoint()
+
+            counter += 1
+
+    return len(visited_points_tail)
 
 
 def main():
@@ -270,13 +307,13 @@ def main():
     args = utils.parse_args()
     lines = utils.read_puzzle_input_file(args.input_file)
 
-    print("--- Day 9: Rope Bridge ---")
-    answer_part_one = solve_part_one(lines)
-    # print(f"Total score: {total_score_part_one}")
+    # print("--- Day 9: Rope Bridge ---")
+    # answer_part_one = solve_part_one(lines)
+    # print(f"Answer part one: {answer_part_one}")
 
     print("--- Part Two ---")
     answer_part_two = solve_part_two(lines)
-    # print(f"Total score: {total_score_part_two}")
+    print(f"Answer part two: {answer_part_two}")
 
 
 if __name__ == "__main__":

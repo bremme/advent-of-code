@@ -2,7 +2,10 @@ import unittest
 
 from aoc_2022.day_9.rope_bridge import (
     calculate_tail_movement,
-    point_touches_other_point,
+    determine_playground,
+    determine_playground_2,
+    parse_series_of_motions,
+    solve_part_one,
 )
 from aoc_2022.utils import utils
 
@@ -10,13 +13,13 @@ DAY = 9
 
 
 class TestRopeBridge(unittest.TestCase):
-    def test_calculate_tail_movement(self):
+    # def test_calculate_tail_movement(self):
 
-        head = (4, 2)
-        tail = (3, 0)
-        direction = calculate_tail_movement(head, tail)
+    #     head = (4, 2)
+    #     tail = (3, 0)
+    #     direction = calculate_tail_movement(head, tail)
 
-        breakpoint()
+    #     breakpoint()
 
     # def test_point_touches_other_point(self):
     #     #  1,3    2,3     3,3
@@ -44,19 +47,37 @@ class TestRopeBridge(unittest.TestCase):
     #         touches = point_touches_other_point(point, other_point)
     #         self.assertFalse(touches)
 
+    def test_determine_playground_example(self):
+        lines = utils.read_puzzle_input(day=DAY, example=True)
+        series_of_motions = parse_series_of_motions(lines)
+
+        start, (rows, columns) = determine_playground_2(series_of_motions)
+
+        self.assertEqual((start.row, start.col), (0, 0))
+        self.assertEqual((rows, columns), (5, 6))
+
+    def test_determine_playground(self):
+        lines = utils.read_puzzle_input(day=DAY, example=False)
+        series_of_motions = parse_series_of_motions(lines)
+
+        start, (rows, columns) = determine_playground_2(series_of_motions)
+
+        self.assertEqual((start.row, start.col), (16, 225))
+        self.assertEqual((rows, columns), (520, 233))
+
     # def test_solve_part_one_example(self):
     #     lines = utils.read_puzzle_input(day=DAY, example=True)
 
     #     answer = solve_part_one(lines)
 
-    #     self.assertEqual(answer, "CMZ")
+    #     self.assertEqual(answer, 13)
 
     # def test_solve_part_one(self):
     #     lines = utils.read_puzzle_input(day=DAY, example=False)
 
     #     answer = solve_part_one(lines)
 
-    #     self.assertEqual(answer, "SHQWSRBDL")
+    #     self.assertEqual(answer, 6391)
 
     # def test_solve_part_two_example(self):
     #     lines = utils.read_puzzle_input(day=DAY, example=True)
