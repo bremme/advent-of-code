@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import Optional
 
 from aoc_2022.utils import utils
@@ -29,6 +30,7 @@ class CPU:
 
     def tick(self):
 
+        # every 40th cycle starting at 20
         if (self.cycle - 20) % 40 == 0:
             signal_strength = self.cycle * self.x
             print(f"cycle = {self.cycle}, X = {self.x}, signal_strength: {signal_strength}")
@@ -43,6 +45,7 @@ class CPU:
                     self.state = "addx"
             except IndexError:
                 self.state = "done"
+        # else if we started an addx instruction, finish it
         elif self.state == "addx":
             self.x += self.instruction.arg
             self.state = "idle"
@@ -51,15 +54,33 @@ class CPU:
 
 class Clock:
 
-    def __init__(self, cpu) -> None:
+    def __init__(self, cpu,crt) -> None:
         self.cpu = cpu
+        self.crt = crt
 
     def run(self):
-        while True:
+        while self.cpu.state != "done":
             self.cpu.tick()
-            if self.cpu.state == "done":
-                break
+            self.crt.tick()
 
+class CRT:
+
+    def __init__(self, width, height, cpu) -> None:
+        self.width = width
+        self.height = height
+        self.cpu = cpu
+        self.row = 0
+        self.col = 0
+
+    def tick(self):
+        sprite_column = self.cpu.x
+        if self.col in  self.
+
+
+
+class Pixel(Enum):
+    DARK = "."
+    LIT = "#"
 
 
 def parse_instructions(lines):
@@ -75,13 +96,10 @@ def parse_instructions(lines):
 
     return instructions
 
-
-
-
 def solve_part_one(lines):
     instructions = parse_instructions(lines)
 
-    memory = Memory(instructions)
+    memory = Memory(instructions=instructions)
     cpu = CPU(memory=memory)
     clock = Clock(cpu=cpu)
 
@@ -91,9 +109,14 @@ def solve_part_one(lines):
 
 
 
-
 def solve_part_two(lines):
-    pass
+    instructions = parse_instructions(lines)
+    memory = Memory(instructions=instructions)
+    cpu = CPU(memory=memory)
+    crt = CRT(width=40, height=6, sprite_position=cpu.x)
+    clock = Clock(cpu=cpu, crt=)
+
+
 
 
 def main():
