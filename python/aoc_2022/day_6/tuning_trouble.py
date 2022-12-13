@@ -1,8 +1,14 @@
-import sys
-from pathlib import Path
+from aoc_2022.utils import utils
 
 
-def find_marker_index(buffer, num_chars):
+def find_markers(lines, num_chars):
+    marker_indices = []
+    for line in lines:
+        marker_indices.append(find_marker(line, num_chars))
+
+    return marker_indices[0] if len(marker_indices) == 1 else marker_indices
+
+def find_marker(buffer, num_chars):
     for i in range(0, len(buffer) - num_chars):
         window = buffer[i : i + num_chars]
 
@@ -11,33 +17,28 @@ def find_marker_index(buffer, num_chars):
             return i + num_chars
 
 
-def part_one(lines):
-    start_packet_distinct_chars = 4
-    for line in lines:
-        print(find_marker_index(line, start_packet_distinct_chars))
+def solve_part_one(lines):
+    start_message_marker_distinct_chars = 4
+    return find_markers(lines, num_chars=start_message_marker_distinct_chars)
 
 
-def part_two(lines):
+def solve_part_two(lines):
     start_message_marker_distinct_chars = 14
-    for line in lines:
-        print(find_marker_index(line, start_message_marker_distinct_chars))
+    return find_markers(lines, num_chars=start_message_marker_distinct_chars)
 
 
-def main(input_file):
-    input_file_path = Path(__file__).with_name(input_file)
+def main():
+    args = utils.parse_args()
+    lines = utils.read_puzzle_input_file(args.input_file)
 
-    with open(input_file_path, "r") as fh:
-        lines = [line for line in fh.read().splitlines()]
+    print("--- Day 6: Tuning Trouble ---")
+    answer_part_one = solve_part_one(lines)
+    print(f"Answer part one: {answer_part_one}")
 
-    part_one(lines)
-    part_two(lines)
+    print("--- Part Two ---")
+    answer_part_two = solve_part_two(lines)
+    print(f"Answer part two: {answer_part_two}")
 
 
 if __name__ == "__main__":
-    input_file = "puzzle_input.txt"
-
-    if len(sys.argv) >= 2 and sys.argv[1] == "example":
-        print("Using example data")
-        input_file = "puzzle_input_example.txt"
-
-    main(input_file)
+    main()
