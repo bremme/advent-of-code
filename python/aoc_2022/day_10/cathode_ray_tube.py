@@ -33,35 +33,43 @@ class CPU:
         # every 40th cycle starting at 20
         if (self.cycle - 20) % 40 == 0:
             signal_strength = self.cycle * self.x
-            print(f"cycle = {self.cycle}, X = {self.x}, signal_strength: {signal_strength}")
+            # print(f"cycle = {self.cycle}, X = {self.x}, signal_strength: {signal_strength}")
             self.signal_strength[self.cycle] = signal_strength
             self.total_signal_strength += signal_strength
 
         # if state is idle get new instruction
         if self.state == "idle":
-            try:
-                self.instruction = self.memory.instructions.pop()
-                if self.instruction.command == "addx":
-                    self.state = "addx"
-            except IndexError:
-                self.state = "done"
+
+            self.instruction = self.memory.instructions.pop()
+
+            if self.instruction.command == "addx":
+                self.state = "addx"
+
         # else if we started an addx instruction, finish it
         elif self.state == "addx":
             self.x += self.instruction.arg
             self.state = "idle"
 
+        if len(self.memory.instructions) == 0:
+            self.state = "done"
+
         self.cycle += 1
 
 class Clock:
 
-    def __init__(self, cpu,crt) -> None:
+    def __init__(self, cpu, crt=None) -> None:
         self.cpu = cpu
         self.crt = crt
 
     def run(self):
-        while self.cpu.state != "done":
+        while True:
+            if self.crt:
+                self.crt.tick()
+
             self.cpu.tick()
-            self.crt.tick()
+
+            if self.cpu.state == "done":
+                break
 
 class CRT:
 
@@ -71,16 +79,38 @@ class CRT:
         self.cpu = cpu
         self.row = 0
         self.col = 0
+        self.frame_buffer = [[Pixel.DARK] * self.width for _ in range(self.height)]
 
     def tick(self):
+
+        pixel = self._get_pixel()
+
+        self.frame_buffer[self.row][self.col] = pixel.value
+
+        self.col += 1
+
+        if self.col == self.width:
+            self.col = 0
+            self.row += 1
+
+
+    def _get_pixel(self):
         sprite_column = self.cpu.x
-        if self.col in  self.
+
+        if self.col in [sprite_column - 1, sprite_column, sprite_column + 1]:
+            return Pixel.LIT
+
+        return Pixel.DARK
+
+    def display(self):
+        for row in range(self.height):
+            print("".join(self.frame_buffer[row]))
 
 
 
 class Pixel(Enum):
-    DARK = "."
-    LIT = "#"
+    DARK = "⚫"
+    LIT = "⚪"
 
 
 def parse_instructions(lines):
@@ -95,6 +125,7 @@ def parse_instructions(lines):
         instructions.append(Instruction(command, arg))
 
     return instructions
+
 
 def solve_part_one(lines):
     instructions = parse_instructions(lines)
@@ -113,8 +144,12 @@ def solve_part_two(lines):
     instructions = parse_instructions(lines)
     memory = Memory(instructions=instructions)
     cpu = CPU(memory=memory)
-    crt = CRT(width=40, height=6, sprite_position=cpu.x)
-    clock = Clock(cpu=cpu, crt=)
+    crt = CRT(width=40, height=6, cpu=cpu)
+    clock = Clock(cpu=cpu, crt=crt)
+
+    clock.run()
+
+    crt.display()
 
 
 
