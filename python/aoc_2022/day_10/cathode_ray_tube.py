@@ -5,21 +5,19 @@ from typing import Optional
 from aoc_2022.utils import utils
 
 
-class Memory:
-
-    def __init__(self, instructions) -> None:
-        self.instructions = [i for i in reversed(instructions)]
-
-
 @dataclass
 class Instruction:
     command: str
     arg: Optional[int] = None
 
 
-class CPU:
+class Memory:
+    def __init__(self, instructions: list[Instruction]) -> None:
+        self.instructions = [i for i in reversed(instructions)]
 
-    def __init__(self, memory) -> None:
+
+class CPU:
+    def __init__(self, memory: Memory) -> None:
         self.memory = memory
         self.x = 1
         self.state = "idle"
@@ -55,8 +53,8 @@ class CPU:
 
         self.cycle += 1
 
-class Clock:
 
+class Clock:
     def __init__(self, cpu, crt=None) -> None:
         self.cpu = cpu
         self.crt = crt
@@ -71,15 +69,26 @@ class Clock:
             if self.cpu.state == "done":
                 break
 
-class CRT:
 
-    def __init__(self, width, height, cpu) -> None:
+class Pixel(Enum):
+    DARK = "."
+    LIT = "#"
+    DARK_BLACK_CIRCLE = "⚫"
+    LIT_WHITE_CIRCLE = "⚪"
+
+
+class CRT:
+    def __init__(
+        self, width, height, cpu, dark_pixel=Pixel.DARK, lit_pixel=Pixel.LIT
+    ) -> None:
         self.width = width
         self.height = height
         self.cpu = cpu
+        self.dark_pixel = dark_pixel
+        self.lit_pixel = lit_pixel
         self.row = 0
         self.col = 0
-        self.frame_buffer = [[Pixel.DARK] * self.width for _ in range(self.height)]
+        self.frame_buffer = [[dark_pixel] * self.width for _ in range(self.height)]
 
     def tick(self):
 
@@ -93,24 +102,23 @@ class CRT:
             self.col = 0
             self.row += 1
 
-
     def _get_pixel(self):
         sprite_column = self.cpu.x
 
         if self.col in [sprite_column - 1, sprite_column, sprite_column + 1]:
-            return Pixel.LIT
+            return self.lit_pixel
 
-        return Pixel.DARK
+        return self.dark_pixel
 
     def display(self):
         for row in range(self.height):
             print("".join(self.frame_buffer[row]))
 
-
-
-class Pixel(Enum):
-    DARK = "⚫"
-    LIT = "⚪"
+    def __str__(self):
+        display_str = []
+        for row in range(self.height):
+            display_str.append("".join(self.frame_buffer[row]))
+        return "\n\n" + "\n".join(display_str) + "\n"
 
 
 def parse_instructions(lines):
@@ -139,19 +147,22 @@ def solve_part_one(lines):
     return cpu.total_signal_strength
 
 
-
 def solve_part_two(lines):
     instructions = parse_instructions(lines)
     memory = Memory(instructions=instructions)
     cpu = CPU(memory=memory)
-    crt = CRT(width=40, height=6, cpu=cpu)
+    crt = CRT(
+        width=40,
+        height=6,
+        cpu=cpu,
+        dark_pixel=Pixel.DARK_BLACK_CIRCLE,
+        lit_pixel=Pixel.LIT_WHITE_CIRCLE,
+    )
     clock = Clock(cpu=cpu, crt=crt)
 
     clock.run()
 
-    crt.display()
-
-
+    return crt
 
 
 def main():
