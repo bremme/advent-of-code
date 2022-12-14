@@ -1,4 +1,9 @@
+import logging
+from cmath import log
+
 from aoc_2022.utils import utils
+
+logger = logging.getLogger()
 
 
 class Operation:
@@ -42,11 +47,14 @@ class Test:
 
 
 class Monkey:
-    def __init__(self, name, items, operation, test) -> None:
+    def __init__(
+        self, name: str, items: list[int], operation: Operation, test: Test
+    ) -> None:
         self.name = name
         self.items = items
         self.operation = operation
         self.test = test
+        self.borred_factor = 3
         self.other_monkeys = {}
         self.inspections = 0
 
@@ -55,13 +63,13 @@ class Monkey:
 
     def take_turn(self):
         # breakpoint()
-        while self.items:
+        while len(self.items) > 0:
             item = self.items.pop(0)
             # inspect
-            item = self.operation.inspect(item)
+            # item = self.operation.inspect(item)
             self.inspections += 1
-            # get bored
-            item //= 3
+            # get bored (your relief) factor
+            item //= self.borred_factor
             # test
             other_monkey_name = self.test.throw_to_which_monkey(item)
             # throw to other monkey
@@ -108,22 +116,36 @@ def parse_monkeys(lines) -> list[Monkey]:
     return monkeys
 
 
-def solve_part_one(lines):
-    monkeys = parse_monkeys(lines)
+def print_worry_levels(printer, round_number, monkeys):
+    printer(
+        f"After round {round_number}, the monkeys are holding items with these worry levels:"
+    )
+    for monkey in monkeys:
+        printer(f"Monkey {monkey.name}: {monkey.items}")
 
-    for round in range(20):
+    printer("")
+
+
+def print_inspections(printer, monkeys):
+    for monkey in monkeys:
+        printer(f"Monkey {monkey.name} inspected items {monkey.inspections} times.")
+
+
+def play_rounds(monkeys, num_rounds, part):
+    for round_number in range(1, num_rounds + 1):
         for monkey in monkeys:
             monkey.take_turn()
 
-        print(
-            f"After round {round}, the monkeys are holding items with these worry levels:"
-        )
-        for monkey in monkeys:
-            print(f"Monkey {monkey.name}: {monkey.items}")
+        if part == "one":
+            print_worry_levels(logger.debug, round_number, monkeys)
 
-    print()
-    for monkey in monkeys:
-        print(f"Monkey {monkey.name} inspected items {monkey.inspections} times.")
+        if part == "two":
+            if round_number == 1 or round_number == 20 or round_number % 1000 == 0:
+                logger.debug(f"== After round {round_number} ==")
+                print_inspections(logger.debug, monkeys)
+
+    if part == "one":
+        print_inspections(logger.debug, monkeys)
 
     monkeys_inspections = sorted([monkey.inspections for monkey in monkeys])
     monkey_business = monkeys_inspections[-1] * monkeys_inspections[-2]
@@ -131,8 +153,30 @@ def solve_part_one(lines):
     return monkey_business
 
 
+def solve_part_one(lines):
+    monkeys = parse_monkeys(lines)
+
+    monkey_business = play_rounds(monkeys=monkeys, num_rounds=20, part="one")
+
+    return monkey_business
+
+
 def solve_part_two(lines):
-    pass
+    monkeys = parse_monkeys(lines)
+
+    # for factor in range(1, 100):
+    #     for monkey in monkeys:
+    #         monkey.borred_factor = 1
+    #     monkey_business = play_rounds(monkeys=monkeys, num_rounds=20, part="two")
+    #     if monkeys[0].inspections == 99:
+    #         breakpoint()
+
+    for monkey in monkeys:
+        monkey.borred_factor = 1
+
+    monkey_business = play_rounds(monkeys=monkeys, num_rounds=10_000, part="two")
+
+    return monkey_business
 
 
 def main():
@@ -140,13 +184,23 @@ def main():
     args = utils.parse_args()
     lines = utils.read_puzzle_input_file(args.input_file)
 
-    print("---- Day 11: Monkey in the Middle ---")
-    answer_part_one = solve_part_one(lines)
-    print(f"Answer part one: {answer_part_one}")
+    FORMAT = "%(message)s"
+    logging.basicConfig(format=FORMAT)
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
 
-    print("--- Part Two ---")
-    answer_part_two = solve_part_two(lines)
-    print(f"Answer part two: {answer_part_two}")
+    logger.info("---- Day 11: Monkey in the Middle ---")
+
+    if args.part in ["1", "one", None]:
+        answer_part_one = solve_part_one(lines)
+        logger.info(f"Answer part one: {answer_part_one}")
+
+    if args.part in ["2", "two", None]:
+        logger.info("--- Part Two ---")
+        answer_part_two = solve_part_two(lines)
+        logger.info(f"Answer part two: {answer_part_two}")
 
 
 if __name__ == "__main__":
