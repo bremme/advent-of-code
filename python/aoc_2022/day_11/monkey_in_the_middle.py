@@ -1,5 +1,6 @@
 import logging
 from cmath import log
+from typing import Optional
 
 from aoc_2022.utils import utils
 
@@ -48,12 +49,18 @@ class Test:
 
 class Monkey:
     def __init__(
-        self, name: str, items: list[int], operation: Operation, test: Test
+        self,
+        name: str,
+        items: list[int],
+        operation: Operation,
+        test: Test,
+        modulo: Optional[int] = None,
     ) -> None:
         self.name = name
         self.items = items
         self.operation = operation
         self.test = test
+        self.modulo = modulo
         self.borred_factor = 3
         self.other_monkeys = {}
         self.inspections = 0
@@ -61,15 +68,24 @@ class Monkey:
     def add_other_monkey(self, other_monkey):
         self.other_monkeys[other_monkey.name] = other_monkey
 
-    def take_turn(self):
-        # breakpoint()
+    def take_turn(self, part: str):
+        def relieve_part_one(item: int):
+            # get bored (your relief) factor (part one)
+            return item // self.borred_factor
+
+        def relieve_part_two(item: int):
+            # take super module, Chinese remainder theorem (part two)
+            return item % self.modulo
+
+        relieve_fuctions = {"one": relieve_part_one, "two": relieve_part_two}
+
         while len(self.items) > 0:
             item = self.items.pop(0)
             # inspect
-            # item = self.operation.inspect(item)
+            item = self.operation.inspect(item)
             self.inspections += 1
-            # get bored (your relief) factor
-            item //= self.borred_factor
+            # relieve
+            item = relieve_fuctions[part](item=item)
             # test
             other_monkey_name = self.test.throw_to_which_monkey(item)
             # throw to other monkey
@@ -82,6 +98,7 @@ class Monkey:
 def parse_monkeys(lines) -> list[Monkey]:
 
     monkeys = []
+    modulo = 1
 
     for i in range(0, len(lines), 7):
 
@@ -100,18 +117,25 @@ def parse_monkeys(lines) -> list[Monkey]:
             true_result=true_result,
             false_result=false_result,
         )
+
+        modulo *= divisible_by
+
         monkey = Monkey(
             name=monkey_number, items=starting_items, operation=operation, test=test
         )
 
         monkeys.append(monkey)
 
-    #
+    # Make sure all monkeys can throw to each other
     for monkey in monkeys:
         for other_monkey in monkeys:
             if other_monkey is monkey:
                 continue
             monkey.add_other_monkey(other_monkey)
+
+    # set module
+    for monkey in monkeys:
+        monkey.modulo = modulo
 
     return monkeys
 
@@ -131,10 +155,10 @@ def print_inspections(printer, monkeys):
         printer(f"Monkey {monkey.name} inspected items {monkey.inspections} times.")
 
 
-def play_rounds(monkeys, num_rounds, part):
+def play_rounds(monkeys: list[Monkey], num_rounds, part):
     for round_number in range(1, num_rounds + 1):
         for monkey in monkeys:
-            monkey.take_turn()
+            monkey.take_turn(part=part)
 
         if part == "one":
             print_worry_levels(logger.debug, round_number, monkeys)
@@ -163,16 +187,6 @@ def solve_part_one(lines):
 
 def solve_part_two(lines):
     monkeys = parse_monkeys(lines)
-
-    # for factor in range(1, 100):
-    #     for monkey in monkeys:
-    #         monkey.borred_factor = 1
-    #     monkey_business = play_rounds(monkeys=monkeys, num_rounds=20, part="two")
-    #     if monkeys[0].inspections == 99:
-    #         breakpoint()
-
-    for monkey in monkeys:
-        monkey.borred_factor = 1
 
     monkey_business = play_rounds(monkeys=monkeys, num_rounds=10_000, part="two")
 
