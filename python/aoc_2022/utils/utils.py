@@ -1,7 +1,5 @@
 import argparse
-import sys
 from pathlib import Path
-from types import SimpleNamespace
 
 DATA_DIRECTORY = Path(__file__).parent.parent.parent.parent / "data"
 

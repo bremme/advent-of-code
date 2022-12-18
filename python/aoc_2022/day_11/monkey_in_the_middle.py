@@ -1,5 +1,4 @@
 import logging
-from cmath import log
 from typing import Optional
 
 from aoc_2022.utils import utils
