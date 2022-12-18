@@ -197,13 +197,6 @@ def main():
     args = utils.parse_args()
     lines = utils.read_puzzle_input_file(args.input_file)
 
-    FORMAT = "%(message)s"
-    logging.basicConfig(format=FORMAT)
-    if args.verbose:
-        logger.setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.INFO)
-
     logger.info("---- Day 11: Monkey in the Middle ---")
 
     if args.part in ["1", "one", None]:

@@ -1,5 +1,6 @@
 import argparse
 import logging
+import time
 
 from aoc_2022.day_11 import monkey_in_the_middle
 from aoc_2022.day_12 import hill_climbing_algorithm
@@ -44,21 +45,31 @@ def main():
 
     logger.info(f"---- Day {args.day}: {PUZZLES[args.day]} ---")
 
-    def solve_puzzle():
+    def solve_puzzles():
+
         if args.part in [1, None]:
+            logger.info("--- Part One ---")
+            start = time.time()
             answer_part_one = module.solve_part_one(lines)
-            logger.info(f"Answer part one: {answer_part_one}")
+            duration_ms = (time.time() - start) * 1_000
+            logger.info(
+                f"Answer part one: {answer_part_one}\t(took {duration_ms:,.3f} ms)"
+            )
 
         if args.part in [2, None]:
             logger.info("--- Part Two ---")
+            start = time.time()
             answer_part_two = module.solve_part_two(lines)
-            logger.info(f"Answer part two: {answer_part_two}")
+            duration_ms = (time.time() - start) * 1_000
+            logger.info(
+                f"Answer part two: {answer_part_two}\t(took {duration_ms:,.3f} ms)"
+            )
 
     if args.debug:
         with launch_ipdb_on_exception():
-            solve_puzzle()
+            solve_puzzles()
     else:
-        solve_puzzle()
+        solve_puzzles()
 
 
 if __name__ == "__main__":
