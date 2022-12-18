@@ -4,11 +4,16 @@ import time
 
 from aoc_2022.day_11 import monkey_in_the_middle
 from aoc_2022.day_12 import hill_climbing_algorithm
+from aoc_2022.day_13 import distress_signal
 from aoc_2022.utils.utils import read_puzzle_input, read_puzzle_input_file
 from ipdb import launch_ipdb_on_exception
 
-PUZZLES = {11: "Monkey in the Middle", 12: "Hill Climbing Algorithm"}
-MODULES = {11: monkey_in_the_middle, 12: hill_climbing_algorithm}
+PUZZLES = {
+    11: "Monkey in the Middle",
+    12: "Hill Climbing Algorithm",
+    13: "Distress Signal",
+}
+MODULES = {11: monkey_in_the_middle, 12: hill_climbing_algorithm, 13: distress_signal}
 
 logger = logging.getLogger()
 
