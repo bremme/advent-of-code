@@ -35,7 +35,7 @@ class Map:
         return (row, column) == self.end
 
     def determine_destinations(
-        self, row, column, max_height_difference
+        self, row, column, direction
     ) -> Generator[tuple[int], None, None]:
         UP = -1, 0
         RIGHT = 0, 1
@@ -52,7 +52,10 @@ class Map:
             destination_height = self.grid[destination_row][destination_column]
             current_height = self.grid[row][column]
 
-            if destination_height <= (current_height + max_height_difference):
+            if direction == "up" and (destination_height - current_height) <= 1:
+                yield destination_row, destination_column
+
+            if direction == "down" and (destination_height - current_height) >= -1:
                 yield destination_row, destination_column
 
     def find_positions_with_height(self, height):
@@ -102,14 +105,13 @@ def parse_height_map(lines) -> Map:
     return Map(grid=grid, start=start, end=end)
 
 
-def find_shortest_path(map, start, end):
-    MAX_HEIGHT_DIFFERENCE = 1
+def find_shortest_path(map: Map, start, is_end, direction="up"):
 
     heap = []
 
     heappush(heap, (0, start[0], start[1]))
 
-    logger.debug(f"Find shortest path from {start} to {end}")
+    logger.debug(f"Find shortest path from {start}.")
 
     while True:
         distance, row, column = heappop(heap)
@@ -123,27 +125,45 @@ def find_shortest_path(map, start, end):
 
         map.visit(row, column)
 
-        if (row, column) == end:
+        if is_end(row, column, map):
             return distance
 
-        for destination in map.determine_destinations(
-            row, column, MAX_HEIGHT_DIFFERENCE
-        ):
+        for destination in map.determine_destinations(row, column, direction):
             heappush(heap, (distance + 1, destination[0], destination[1]))
 
 
 def solve_part_one(lines):
     map = parse_height_map(lines)
-    return find_shortest_path(map, map.start, map.end)
+
+    # we finish
+    def is_end(row, column, map):
+        return (row, column) == map.end
+
+    return find_shortest_path(map, map.start, is_end)
 
 
 def solve_part_two(lines):
     map = parse_height_map(lines)
+
+    # we finish when we found a tile with height = 0
+    def is_end(row, column, map: Map):
+        return map.grid[row][column] == 0
+
+    # this time we start at the end and traverse backwards for better peformance
+    distance = find_shortest_path(map, start=map.end, is_end=is_end, direction="down")
+
+    return distance
+
+
+def solve_part_two_brute_force(lines):
+    map = parse_height_map(lines)
     path_lengths = []
+
+    def is_end(row, column, map):
+        return (row, column) == map.end
+
     for row, column in map.find_positions_with_height(determine_height("a")):
-        distance = find_shortest_path(map, start=(row, column), end=map.end)
+        distance = find_shortest_path(map, start=(row, column), is_end=is_end)
         if distance is not None:
             path_lengths.append(distance)
         map.reset_visited()
-
-    return min(path_lengths)
