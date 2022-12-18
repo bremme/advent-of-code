@@ -149,10 +149,11 @@ def convert_to_cardinal_direction(direction):
         "L": "W",
     }[direction]
 
-class Knot(Point):
 
+class Knot(Point):
     def __init__(self, row=0, col=0) -> None:
         super().__init__(row, col)
+
 
 class Robe:
     def __init__(self, start: Point, number_of_knots) -> None:
@@ -172,7 +173,6 @@ class Robe:
     def move_head(self, direction):
         self.head.move(direction)
         # move following knots
-        for 
 
 
 def solve_part_one_2(lines):

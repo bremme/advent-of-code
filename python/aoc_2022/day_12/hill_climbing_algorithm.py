@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass
 from heapq import heappop, heappush
+from typing import Generator
 
 logger = logging.getLogger()
 
@@ -33,7 +34,9 @@ class Map:
     def is_end(self, row, column):
         return (row, column) == self.end
 
-    def determine_destinations(self, row, column, max_height_difference) -> tuple[int]:
+    def determine_destinations(
+        self, row, column, max_height_difference
+    ) -> Generator[tuple[int], None, None]:
         UP = -1, 0
         RIGHT = 0, 1
         DOWN = 1, 0
@@ -81,7 +84,7 @@ def determine_height(char) -> int:
     return ord(char) - ASCII_OFFSET_LOWERCASE_A
 
 
-def parse_height_map(lines):
+def parse_height_map(lines) -> Map:
     START_MARKER = "S"
     END_MARKER = "E"
     grid = []
@@ -99,14 +102,14 @@ def parse_height_map(lines):
     return Map(grid=grid, start=start, end=end)
 
 
-def find_shortest_path(map, start):
+def find_shortest_path(map, start, end):
     MAX_HEIGHT_DIFFERENCE = 1
 
     heap = []
 
     heappush(heap, (0, start[0], start[1]))
 
-    logger.debug(f"Find shortest path from {start} to {map.end}")
+    logger.debug(f"Find shortest path from {start} to {end}")
 
     while True:
         distance, row, column = heappop(heap)
@@ -120,7 +123,7 @@ def find_shortest_path(map, start):
 
         map.visit(row, column)
 
-        if map.is_end(row, column):
+        if (row, column) == end:
             return distance
 
         for destination in map.determine_destinations(
@@ -131,14 +134,14 @@ def find_shortest_path(map, start):
 
 def solve_part_one(lines):
     map = parse_height_map(lines)
-    return find_shortest_path(map, map.start)
+    return find_shortest_path(map, map.start, map.end)
 
 
 def solve_part_two(lines):
     map = parse_height_map(lines)
     path_lengths = []
     for row, column in map.find_positions_with_height(determine_height("a")):
-        distance = find_shortest_path(map, start=(row, column))
+        distance = find_shortest_path(map, start=(row, column), end=map.end)
         if distance is not None:
             path_lengths.append(distance)
         map.reset_visited()

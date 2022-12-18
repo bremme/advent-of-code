@@ -5,32 +5,37 @@ from aoc_2022.utils import utils
 
 DAY = 11
 
+EXPECTED_ANSWER_PART_ONE_EXAMPLE = 10605
+EXPECTED_ANSWER_PART_ONE = 120384
+EXPECTED_ANSWER_PART_TWO_EXAMPLE = 2713310158
+EXPECTED_ANSWER_PART_TWO = 32059801242
 
-class TestRopeBridge(unittest.TestCase):
+
+class TestMonkeyInTheMiddle(unittest.TestCase):
     def test_solve_part_one_example(self):
         lines = utils.read_puzzle_input(day=DAY, example=True)
 
         answer = solve_part_one(lines)
 
-        self.assertEqual(answer, 10605)
+        self.assertEqual(answer, EXPECTED_ANSWER_PART_ONE_EXAMPLE)
 
     def test_solve_part_one(self):
         lines = utils.read_puzzle_input(day=DAY, example=False)
 
         answer = solve_part_one(lines)
 
-        self.assertEqual(answer, 120384)
+        self.assertEqual(answer, EXPECTED_ANSWER_PART_ONE)
 
     def test_solve_part_two_example(self):
         lines = utils.read_puzzle_input(day=DAY, example=True)
 
         answer = solve_part_two(lines)
 
-        self.assertEqual(answer, 2713310158)
+        self.assertEqual(answer, EXPECTED_ANSWER_PART_TWO_EXAMPLE)
 
     def test_solve_part_two(self):
         lines = utils.read_puzzle_input(day=DAY, example=False)
 
         answer = solve_part_two(lines)
 
-        self.assertEqual(answer, 32059801242)
+        self.assertEqual(answer, EXPECTED_ANSWER_PART_TWO)

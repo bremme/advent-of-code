@@ -10,12 +10,32 @@ from ipdb import launch_ipdb_on_exception
 PUZZLES = {11: "Monkey in the Middle", 12: "Hill Climbing Algorithm"}
 MODULES = {11: monkey_in_the_middle, 12: hill_climbing_algorithm}
 
+logger = logging.getLogger()
+
+
+def _solve_puzzles(day, part, module, lines):
+
+    logger.info(f"---- Day {day}: {PUZZLES[day]} ---")
+
+    if part in [1, None]:
+        logger.info("--- Part One ---")
+        start = time.time()
+        answer_part_one = module.solve_part_one(lines)
+        duration_ms = (time.time() - start) * 1_000
+        logger.info(f"Answer part one: {answer_part_one}\t(took {duration_ms:,.3f} ms)")
+
+    if part in [2, None]:
+        logger.info("--- Part Two ---")
+        start = time.time()
+        answer_part_two = module.solve_part_two(lines)
+        duration_ms = (time.time() - start) * 1_000
+        logger.info(f"Answer part two: {answer_part_two}\t(took {duration_ms:,.3f} ms)")
+
 
 def main():
 
-    logger = logging.getLogger()
-
     parser = argparse.ArgumentParser(prog="Advent of Code")
+
     parser.add_argument("-d", "--day", type=int, required=True)
     parser.add_argument("-p", "--part", type=int)
     parser.add_argument("-e", "--example", action="store_true")
@@ -43,33 +63,11 @@ def main():
 
     module = MODULES.get(args.day)
 
-    logger.info(f"---- Day {args.day}: {PUZZLES[args.day]} ---")
-
-    def solve_puzzles():
-
-        if args.part in [1, None]:
-            logger.info("--- Part One ---")
-            start = time.time()
-            answer_part_one = module.solve_part_one(lines)
-            duration_ms = (time.time() - start) * 1_000
-            logger.info(
-                f"Answer part one: {answer_part_one}\t(took {duration_ms:,.3f} ms)"
-            )
-
-        if args.part in [2, None]:
-            logger.info("--- Part Two ---")
-            start = time.time()
-            answer_part_two = module.solve_part_two(lines)
-            duration_ms = (time.time() - start) * 1_000
-            logger.info(
-                f"Answer part two: {answer_part_two}\t(took {duration_ms:,.3f} ms)"
-            )
-
     if args.debug:
         with launch_ipdb_on_exception():
-            solve_puzzles()
+            _solve_puzzles(day=args.day, part=args.part, module=module, lines=lines)
     else:
-        solve_puzzles()
+        _solve_puzzles(day=args.day, part=args.part, module=module, lines=lines)
 
 
 if __name__ == "__main__":
