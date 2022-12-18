@@ -32,3 +32,7 @@ class TestCalorieCounting(unittest.TestCase):
         total_score = solve_part_two(lines)
 
         self.assertEqual(total_score, 14652)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -39,3 +39,7 @@ class TestMonkeyInTheMiddle(unittest.TestCase):
         answer = solve_part_two(lines)
 
         self.assertEqual(answer, EXPECTED_ANSWER_PART_TWO)
+
+
+if __name__ == "__main__":
+    unittest.main()

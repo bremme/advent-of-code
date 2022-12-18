@@ -80,3 +80,7 @@ class TestRuckSackReorganization(unittest.TestCase):
         answer = solve_part_two(lines)
 
         self.assertEqual(answer, 2434)
+
+
+if __name__ == "__main__":
+    unittest.main()

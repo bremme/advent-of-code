@@ -57,3 +57,6 @@ class TestRopeBridge(unittest.TestCase):
             row = "".join(crt.frame_buffer[row])
             self.assertEqual(row, expected_row)
 
+
+if __name__ == "__main__":
+    unittest.main()

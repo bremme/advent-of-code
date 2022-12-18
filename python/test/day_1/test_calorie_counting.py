@@ -36,3 +36,7 @@ class TestCalorieCounting(unittest.TestCase):
         total_calories_top_three = solve_part_two(elf_calories)
 
         self.assertEqual(total_calories_top_three, 207456)
+
+
+if __name__ == "__main__":
+    unittest.main()
