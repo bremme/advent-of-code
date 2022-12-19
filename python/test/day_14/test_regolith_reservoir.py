@@ -1,6 +1,6 @@
 import unittest
 
-from aoc_2022.day_14.regolith_reservoir import solve_part_one, solve_part_two
+from aoc_2022.day_14.regolith_reservoir_naive import solve_part_one, solve_part_two
 from aoc_2022.utils import utils
 
 DAY = 14
@@ -11,7 +11,7 @@ EXPECTED_ANSWER_PART_TWO_EXAMPLE = 93
 EXPECTED_ANSWER_PART_TWO = 30762
 
 
-class TestHillClimbingAlgorithm(unittest.TestCase):
+class TestRegolithReservoir(unittest.TestCase):
     def test_solve_part_one_example(self):
         lines = utils.read_puzzle_input(day=DAY, example=True)
 

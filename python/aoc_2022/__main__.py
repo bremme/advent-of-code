@@ -5,7 +5,7 @@ import time
 from aoc_2022.day_11 import monkey_in_the_middle
 from aoc_2022.day_12 import hill_climbing_algorithm
 from aoc_2022.day_13 import distress_signal
-from aoc_2022.day_14 import regolith_reservoir
+from aoc_2022.day_14 import regolith_reservoir_naive, regolith_reservoir_optimized
 from aoc_2022.utils.utils import read_puzzle_input, read_puzzle_input_file
 from ipdb import launch_ipdb_on_exception
 
@@ -16,10 +16,13 @@ PUZZLES = {
     14: "Regolith Reservoir",
 }
 MODULES = {
-    11: monkey_in_the_middle,
-    12: hill_climbing_algorithm,
-    13: distress_signal,
-    14: regolith_reservoir,
+    11: {"default": monkey_in_the_middle},
+    12: {"default": hill_climbing_algorithm},
+    13: {"default": distress_signal},
+    14: {
+        "default": regolith_reservoir_naive,
+        "optimized": regolith_reservoir_optimized,
+    },
 }
 
 logger = logging.getLogger()
@@ -50,6 +53,7 @@ def main():
 
     parser.add_argument("-d", "--day", type=int, required=True)
     parser.add_argument("-p", "--part", type=int)
+    parser.add_argument("--variant", default="default")
     parser.add_argument("-e", "--example", action="store_true")
 
     parser.add_argument("-f", "--file", type=str, dest="input_file")
@@ -73,7 +77,7 @@ def main():
     else:
         logging.getLogger().setLevel(logging.INFO)
 
-    module = MODULES.get(args.day)
+    module = MODULES.get(args.day).get(args.variant)
 
     if args.debug:
         with launch_ipdb_on_exception():
