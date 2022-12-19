@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
+import logging
+
+logger = logging.getLogger()
 
 
 @dataclass
@@ -73,9 +76,9 @@ class Path:
             raise StopIteration
 
 
-def parse(lines):
+def parse(lines, add_floor=False):
     paths = []
-    min_rows, max_rows = 0, 0
+    max_rows = 0
     min_columns, max_columns = None, 0
 
     for line in lines:
@@ -103,17 +106,36 @@ def parse(lines):
         paths.append(path)
 
     # determine map size
-    num_rows = max_rows - min_rows + 1
+    num_rows = max_rows + 1
     num_columns = max_columns - min_columns + 1
+
+    if add_floor:
+        # determine required width of floor
+        max_columns = min_columns + (2 * num_rows)
+        max_rows += 2
+
+        floor = Path(
+            points=[
+                Point(row=max_rows, column=0),
+                Point(row=max_rows, column=2 * num_rows),
+            ]
+        )
+
+        num_rows = max_rows + 1
+        num_columns = max_columns - min_columns + 1
+
+        paths.append(floor)
 
     map_size = (num_rows, num_columns)
 
-    # apply column offset
-    for path in paths:
-        for point in path:
-            point.column -= min_columns
+    midpoint_offset = ((max_columns - min_columns) // 2) - (500 - min_columns)
 
-    source = Point(row=0, column=500 - min_columns)
+    # apply column offset
+    for path in paths[:-1]:
+        for point in path:
+            point.column = point.column - min_columns + midpoint_offset
+
+    source = Point(row=0, column=(500 - min_columns) + midpoint_offset)
 
     map = Map(
         map_size,
@@ -147,6 +169,10 @@ class Map:
 
         self.grid[source.row][source.column] = source_symbol
 
+    def draw_paths(self, paths: list[Path]):
+        for path in paths:
+            self.draw_path(path)
+
     def draw_path(self, path: Path):
 
         # loop over pair of points
@@ -175,7 +201,7 @@ class Map:
     def draw_sand(self, sand: Point):
         self.grid[sand.row][sand.column] = self.sand_symbol
 
-    def pour_sand_from_source(self):
+    def pour_unit_of_sand_from_source(self):
         # while the sand unit has not come to rest -> move
         sand = Point.from_point(self.source)
 
@@ -187,12 +213,12 @@ class Map:
 
                 new_sand = sand + move
 
-                # finish this iteration when the sand pours of the map
+                # finish this iteration when the sand pours off the map
                 if self.is_on_map(new_sand) is False:
                     return False
 
                 if self.is_air(new_sand):
-                    sand.move(move)
+                    sand = new_sand
                     break
             # not moved and still on map
             else:
@@ -211,29 +237,36 @@ class Map:
 
         return True
 
-    # def determine_sand_destinations(self, sand):
+    def add_row(self, row: list[str]):
+        self.grid.append(row)
+        self.rows += 1
 
-    def print(self):
+    def print(self, printer=print):
         for row in range(self.rows):
-            print("".join(self.grid[row]))
+            printer("".join(self.grid[row]))
 
 
 def solve_part_one(lines):
     paths, map = parse(lines)
 
-    # draw lines
-    for path in paths:
-        map.draw_path(path)
+    map.draw_paths(paths)
 
     units_of_sand = 0
 
-    while map.pour_sand_from_source():
+    while map.pour_unit_of_sand_from_source():
         units_of_sand += 1
 
-    map.print()
+    map.print(logger.debug)
 
     return units_of_sand
 
 
 def solve_part_two(lines):
-    pass
+
+    paths, map = parse(lines, add_floor=True)
+
+    map.draw_paths(paths)
+
+    map.print()
+
+    units_of_sand = 0
