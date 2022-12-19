@@ -108,11 +108,14 @@ def parse(lines, add_floor=False):
     # determine map size
     num_rows = max_rows + 1
     num_columns = max_columns - min_columns + 1
+    midpoint_offset = 0
+    path_slice = slice(0, len(paths))
 
     if add_floor:
         # determine required width of floor
-        max_columns = min_columns + (2 * num_rows)
         max_rows += 2
+        num_rows = max_rows + 1
+        max_columns = min_columns + (2 * num_rows)
 
         floor = Path(
             points=[
@@ -124,18 +127,20 @@ def parse(lines, add_floor=False):
         num_rows = max_rows + 1
         num_columns = max_columns - min_columns + 1
 
+        midpoint_offset = ((max_columns - min_columns) // 2) - (500 - min_columns)
+
         paths.append(floor)
 
-    map_size = (num_rows, num_columns)
-
-    midpoint_offset = ((max_columns - min_columns) // 2) - (500 - min_columns)
-
     # apply column offset
-    for path in paths[:-1]:
+    for path in paths[path_slice]:
         for point in path:
             point.column = point.column - min_columns + midpoint_offset
 
+    map_size = (num_rows, num_columns)
+
     source = Point(row=0, column=(500 - min_columns) + midpoint_offset)
+
+    logger.debug(f"Create map of size {map_size}")
 
     map = Map(
         map_size,
@@ -223,6 +228,8 @@ class Map:
             # not moved and still on map
             else:
                 self.draw_sand(sand)
+                if sand == self.source:
+                    return False
                 return True
 
     def is_air(self, point):
@@ -251,6 +258,7 @@ def solve_part_one(lines):
 
     map.draw_paths(paths)
 
+    map.print(logger.debug)
     units_of_sand = 0
 
     while map.pour_unit_of_sand_from_source():
@@ -267,6 +275,11 @@ def solve_part_two(lines):
 
     map.draw_paths(paths)
 
-    map.print()
-
     units_of_sand = 0
+
+    while map.pour_unit_of_sand_from_source():
+        units_of_sand += 1
+
+    map.print(logger.debug)
+
+    return units_of_sand + 1
