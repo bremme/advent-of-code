@@ -5,13 +5,13 @@ from aoc_2022.utils import utils
 
 DAY = 7
 
-EXPECTED_ANSWER_PART_ONE_EXAMPLE = 24
-EXPECTED_ANSWER_PART_ONE = 913
-EXPECTED_ANSWER_PART_TWO_EXAMPLE = 93
-EXPECTED_ANSWER_PART_TWO = 30762
+EXPECTED_ANSWER_PART_ONE_EXAMPLE = 95437
+EXPECTED_ANSWER_PART_ONE = 1232307
+EXPECTED_ANSWER_PART_TWO_EXAMPLE = 24933642
+EXPECTED_ANSWER_PART_TWO = 7268994
 
 
-class TestRegolithReservoir(unittest.TestCase):
+class TestNoSpaceLeftOnDevice(unittest.TestCase):
     def test_solve_part_one_example(self):
         lines = utils.read_puzzle_input(day=DAY, example=True)
 
