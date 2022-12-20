@@ -63,6 +63,33 @@ def _find_puzzles():
     return puzzles
 
 
+def _parse_args():
+    parser = argparse.ArgumentParser(prog="Advent of Code")
+
+    parser.add_argument("-d", "--day", type=int, required=True)
+    parser.add_argument("-p", "--part", type=int)
+    parser.add_argument("--variant", default="default")
+    parser.add_argument("-e", "--example", action="store_true")
+
+    parser.add_argument("-f", "--file", type=str, dest="input_file")
+    parser.add_argument("-v", "--verbose", action="store_true")
+    parser.add_argument("--debug", action="store_true")
+    parser.add_argument("--profile", action="store_true")
+
+    return parser.parse_args()
+
+
+def _setup_logger(verbose):
+    # setup logger
+    FORMAT = "%(message)s"
+    logging.basicConfig(format=FORMAT)
+
+    if verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+    else:
+        logging.getLogger().setLevel(logging.INFO)
+
+
 def _solve_puzzles(day, title, part, module, lines):
 
     logger.info(f"---- Day {day}: {title} ---")
@@ -107,19 +134,9 @@ class profile:
 def main():
     puzzles = _find_puzzles()
 
-    parser = argparse.ArgumentParser(prog="Advent of Code")
+    args = _parse_args()
 
-    parser.add_argument("-d", "--day", type=int, required=True)
-    parser.add_argument("-p", "--part", type=int)
-    parser.add_argument("--variant", default="default")
-    parser.add_argument("-e", "--example", action="store_true")
-
-    parser.add_argument("-f", "--file", type=str, dest="input_file")
-    parser.add_argument("-v", "--verbose", action="store_true")
-    parser.add_argument("--debug", action="store_true")
-    parser.add_argument("--profile", action="store_true")
-
-    args = parser.parse_args()
+    _setup_logger(args.verbose)
 
     # read input data
     if args.input_file:
@@ -127,28 +144,20 @@ def main():
     else:
         lines = read_puzzle_input(args.day, args.example)
 
-    # setup logger
-    FORMAT = "%(message)s"
-    logging.basicConfig(format=FORMAT)
-
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-    else:
-        logging.getLogger().setLevel(logging.INFO)
-
     puzzle = puzzles.get(args.day, None)
 
     if puzzle is None:
         raise RuntimeError(f"No puzzle defined for day {args.day}")
 
     module = puzzle["variants"].get(args.variant, None)
+    title = puzzle["title"]
 
     if args.debug:
 
         with launch_ipdb_on_exception():
             _solve_puzzles(
                 day=args.day,
-                title=puzzle["title"],
+                title=title,
                 part=args.part,
                 module=module,
                 lines=lines,
@@ -159,7 +168,7 @@ def main():
         with profile(sortby="cumtime", amount=10) as _:
             _solve_puzzles(
                 day=args.day,
-                title=puzzle["title"],
+                title=title,
                 part=args.part,
                 module=module,
                 lines=lines,
@@ -168,7 +177,7 @@ def main():
     else:
         _solve_puzzles(
             day=args.day,
-            title=puzzle["title"],
+            title=title,
             part=args.part,
             module=module,
             lines=lines,
