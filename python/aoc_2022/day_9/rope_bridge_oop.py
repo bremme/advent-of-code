@@ -16,16 +16,16 @@ class Direction(Enum):
     NORTH_WEST = "NW"
 
 
-class Movement(Enum):
-    Direction.NONE = (0, 0)
-    Direction.NORTH = (1, 0)
-    Direction.NORTH_EAST = (1, 1)
-    Direction.EAST = (0, 1)
-    Direction.SOUTH_EAST = (-1, 1)
-    Direction.SOUTH = (-1, 0)
-    Direction.SOUTH_WEST = (-1, -1)
-    Direction.WEST = (0, -1)
-    Direction.NORTH_WEST = (1, -1)
+# class Movement(Enum):
+#     Direction.NONE = (0, 0)
+#     Direction.NORTH = (1, 0)
+#     Direction.NORTH_EAST = (1, 1)
+#     Direction.EAST = (0, 1)
+#     Direction.SOUTH_EAST = (-1, 1)
+#     Direction.SOUTH = (-1, 0)
+#     Direction.SOUTH_WEST = (-1, -1)
+#     Direction.WEST = (0, -1)
+#     Direction.NORTH_WEST = (1, -1)
 
 
 class Move:

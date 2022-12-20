@@ -142,7 +142,7 @@ def find_directories_with_size(directory: Directory, threshold, comparison):
     return result
 
 
-def part_one(lines):
+def solve_part_one(lines):
     root = parse_puzzle_input(lines)
     maximum_size = 100_000
 
@@ -150,10 +150,10 @@ def part_one(lines):
 
     sum_of_small_directories = sum(list(small_directories.values()))
 
-    print(sum_of_small_directories)
+    return sum_of_small_directories
 
 
-def part_two(lines):
+def solve_part_two(lines):
     total_disk_space = 70_000_000
     required_free_space = 30_000_000
 
@@ -167,27 +167,4 @@ def part_two(lines):
 
     size__of_directory_to_delete = min([size for size in large_directories.values()])
 
-    print(size__of_directory_to_delete)
-
-
-def main(input_file):
-    input_file_path = Path(__file__).with_name(input_file)
-
-    with open(input_file_path, "r") as fh:
-        lines = [line for line in fh.read().splitlines()]
-
-    part_one(lines)
-    part_two(lines)
-
-
-if __name__ == "__main__":
-    input_file = "puzzle_input.txt"
-
-    if len(sys.argv) >= 2 and sys.argv[1] == "example":
-        print("Using example data")
-        input_file = "puzzle_input_example.txt"
-
-    main(input_file)
-
-
-# 47052440 too high
+    return size__of_directory_to_delete

@@ -1,9 +1,9 @@
 import unittest
 
-from aoc_2022.day_14.regolith_reservoir import solve_part_one, solve_part_two
+from aoc_2022.day_7.no_space_left_on_device import solve_part_one, solve_part_two
 from aoc_2022.utils import utils
 
-DAY = 14
+DAY = 7
 
 EXPECTED_ANSWER_PART_ONE_EXAMPLE = 24
 EXPECTED_ANSWER_PART_ONE = 913

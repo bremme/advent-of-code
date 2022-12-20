@@ -193,8 +193,6 @@ def solve_part_one_2(lines):
             # Move head (step-=by-step)
             robe.move_head(direction)
 
-            tail
-
             # Move tail (single step )
             tail_direction = calculate_tail_movement(head_position, tail_position)
             new_tail_position = move(tail_position, tail_direction)

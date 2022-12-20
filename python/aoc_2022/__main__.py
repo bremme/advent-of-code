@@ -1,9 +1,11 @@
 import argparse
 import cProfile
+import importlib
 import io
 import logging
 import pstats
 import time
+from operator import mod
 
 from aoc_2022.day_11 import monkey_in_the_middle
 from aoc_2022.day_12 import hill_climbing_algorithm
@@ -16,29 +18,54 @@ from aoc_2022.day_14 import (
 from aoc_2022.utils.utils import read_puzzle_input, read_puzzle_input_file
 from ipdb import launch_ipdb_on_exception
 
-PUZZLES = {
-    11: "Monkey in the Middle",
-    12: "Hill Climbing Algorithm",
-    13: "Distress Signal",
-    14: "Regolith Reservoir",
-}
-MODULES = {
-    11: {"default": monkey_in_the_middle},
-    12: {"default": hill_climbing_algorithm},
-    13: {"default": distress_signal},
-    14: {
-        "default": regolith_reservoir,
-        "list": regolith_reservoir_list,
-        "set": regolith_reservoir_set,
-    },
-}
-
 logger = logging.getLogger()
 
 
-def _solve_puzzles(day, part, module, lines):
+def _find_puzzles():
+    from pathlib import Path
 
-    logger.info(f"---- Day {day}: {PUZZLES[day]} ---")
+    PACKAGE_ROOT = Path(__file__).parent
+
+    puzzles = {}
+
+    for day in range(1, 25 + 1):
+        module_dir = PACKAGE_ROOT / f"day_{day}"
+        if not module_dir.exists():
+            continue
+
+        puzzles[day] = {"title": "", "variants": {}}
+
+        module_variants = []
+
+        for path in module_dir.iterdir():
+            if path.is_dir():
+                continue
+            if path.name.startswith("__"):
+                continue
+            if path.name.split(".")[-1] != "py":
+                continue
+            module_variants.append("".join(path.name.split(".")[:-1]))
+
+        default_module = module_variants.pop(
+            module_variants.index(min(module_variants, key=len))
+        )
+
+        puzzles[day]["title"] = default_module.replace("_", " ").title()
+        puzzles[day]["variants"]["default"] = importlib.import_module(
+            f"aoc_2022.day_{day}.{default_module}"
+        )
+        for module_name in module_variants:
+            variant_name = module_name.split("_")[-1]
+            puzzles[day]["variants"][variant_name] = importlib.import_module(
+                f"aoc_2022.day_{day}.{module_name}"
+            )
+
+    return puzzles
+
+
+def _solve_puzzles(day, title, part, module, lines):
+
+    logger.info(f"---- Day {day}: {title} ---")
 
     if part in [1, None]:
         logger.info("--- Part One ---")
@@ -78,6 +105,7 @@ class profile:
 
 
 def main():
+    puzzles = _find_puzzles()
 
     parser = argparse.ArgumentParser(prog="Advent of Code")
 
@@ -108,20 +136,43 @@ def main():
     else:
         logging.getLogger().setLevel(logging.INFO)
 
-    module = MODULES.get(args.day).get(args.variant)
+    puzzle = puzzles.get(args.day, None)
+
+    if puzzle is None:
+        raise RuntimeError(f"No puzzle defined for day {args.day}")
+
+    module = puzzle["variants"].get(args.variant, None)
 
     if args.debug:
 
         with launch_ipdb_on_exception():
-            _solve_puzzles(day=args.day, part=args.part, module=module, lines=lines)
+            _solve_puzzles(
+                day=args.day,
+                title=puzzle["title"],
+                part=args.part,
+                module=module,
+                lines=lines,
+            )
 
     elif args.profile:
 
         with profile(sortby="cumtime", amount=10) as _:
-            _solve_puzzles(day=args.day, part=args.part, module=module, lines=lines)
+            _solve_puzzles(
+                day=args.day,
+                title=puzzle["title"],
+                part=args.part,
+                module=module,
+                lines=lines,
+            )
 
     else:
-        _solve_puzzles(day=args.day, part=args.part, module=module, lines=lines)
+        _solve_puzzles(
+            day=args.day,
+            title=puzzle["title"],
+            part=args.part,
+            module=module,
+            lines=lines,
+        )
 
 
 if __name__ == "__main__":
