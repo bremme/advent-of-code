@@ -8,46 +8,48 @@ source_symbol = "🟦"
 sand_symbol = "🟨"
 
 
-def line_coordinates(source, end):
+def convert_line_to_coordinates(start, end):
+    """Convert a line given by a start and end coordinate to a list of coordinates"""
+
     coordinates = []
-    source_row, source_column = source
+    start_row, start_column = start
     end_row, end_column = end
 
     # horizontal line
-    if source_row == end_row:
+    if start_row == end_row:
         # if line is right to left -> swap
-        if source_column > end_column:
-            (source_row, source_column), (end_row, end_column) = end, source
+        if start_column > end_column:
+            (start_row, start_column), (end_row, end_column) = end, start
 
-        for column in range(source_column, end_column + 1):
-            coordinates.append((source_row, column))
+        for column in range(start_column, end_column + 1):
+            coordinates.append((start_row, column))
 
         return coordinates
 
     # vertical line
-    if source_column == end_column:
+    if start_column == end_column:
         # if line is bottom to top -> swap
-        if source_row > end_row:
-            (source_row, source_column), (end_row, end_column) = end, source
+        if start_row > end_row:
+            (start_row, start_column), (end_row, end_column) = end, start
 
-        for row in range(source_row, end_row + 1):
-            coordinates.append((row, source_column))
+        for row in range(start_row, end_row + 1):
+            coordinates.append((row, start_column))
 
         return coordinates
 
     raise ValueError("Start and end coordinates should be horizontal or vertical")
 
 
-def parse(lines):
+def parse_cave(lines):
 
     cave = {}
 
     for line in lines:
         numbers = [int(element) for element in line.replace(" -> ", ",").split(",")]
         for i in range(0, len(numbers) - 2, 2):
-            source = numbers[i + 1], numbers[i]
+            start = numbers[i + 1], numbers[i]
             end = numbers[i + 3], numbers[i + 2]
-            coordinates = line_coordinates(source, end)
+            coordinates = convert_line_to_coordinates(start, end)
             for c in coordinates:
                 cave[c] = rock_symbol
 
@@ -131,7 +133,7 @@ def add_floor(cave, source):
 def solve_part_one(lines):
     source = 0, 500
 
-    cave = parse(lines)
+    cave = parse_cave(lines)
 
     cave[source] = source_symbol
 
@@ -151,7 +153,7 @@ def solve_part_one(lines):
 def solve_part_two(lines):
     source = 0, 500
 
-    cave = parse(lines)
+    cave = parse_cave(lines)
 
     cave = add_floor(cave=cave, source=source)
 
