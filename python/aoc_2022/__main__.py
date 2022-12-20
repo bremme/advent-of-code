@@ -5,16 +5,7 @@ import io
 import logging
 import pstats
 import time
-from operator import mod
 
-from aoc_2022.day_11 import monkey_in_the_middle
-from aoc_2022.day_12 import hill_climbing_algorithm
-from aoc_2022.day_13 import distress_signal
-from aoc_2022.day_14 import (
-    regolith_reservoir,
-    regolith_reservoir_list,
-    regolith_reservoir_set,
-)
 from aoc_2022.utils.utils import read_puzzle_input, read_puzzle_input_file
 from ipdb import launch_ipdb_on_exception
 
