@@ -1,7 +1,8 @@
-import sys
-from pathlib import Path
+import logging
 
 import numpy
+
+logger = logging.getLogger()
 
 
 def parse_forest_tree_height(lines):
@@ -29,9 +30,9 @@ def build_forest_tree_visible(forest: list[list[int]]):
 def print_forest(forest):
     for row in forest:
         for element in row:
-            print(f"{element}  ", end="")
-        print()
-    print()
+            logger.debug(f"{element}  ", end="")
+        logger.debug("")
+    logger.debug("")
 
 
 def is_edge(row_index, col_index, num_rows, num_cols):
@@ -82,42 +83,6 @@ def look_from_side(forest_tree_height, forest_tree_visible, side):
                 highest_tree_in_row = tree_height
 
     return forest_tree_visible
-
-
-def part_one(lines):
-    forest_tree_height = parse_forest_tree_height(lines)
-    forest_tree_visible = build_forest_tree_visible(forest_tree_height)
-
-    print_forest(forest_tree_height)
-    print_forest(forest_tree_visible)
-
-    print("Look from left")
-    forest_tree_visible = look_from_side(
-        forest_tree_height, forest_tree_visible, "left"
-    )
-    print("After look from left")
-    print_forest(forest_tree_visible)
-
-    print("Look from top")
-    forest_tree_visible = look_from_side(forest_tree_height, forest_tree_visible, "top")
-    print("After look from top")
-    print_forest(forest_tree_visible)
-
-    print("Look from right")
-    forest_tree_visible = look_from_side(
-        forest_tree_height, forest_tree_visible, "right"
-    )
-    print("After look from right")
-    print_forest(forest_tree_visible)
-
-    print("Look from bottom")
-    forest_tree_visible = look_from_side(
-        forest_tree_height, forest_tree_visible, "bottom"
-    )
-    print("After look from bottom")
-    print_forest(forest_tree_visible)
-
-    print(numpy.count_nonzero(forest_tree_visible == "Y"))
 
 
 def get_number_of_visible_trees(forest, row_index, col_index, direction):
@@ -189,10 +154,10 @@ def calculate_scenic_score(forest, row_index, col_index):
         forest, row_index, col_index, "right"
     )
 
-    # print("up", num_visible_trees_up)
-    # print("left", num_visible_trees_left)
-    # print("down", num_visible_trees_down)
-    # print("right", num_visible_trees_right)
+    # logger.debug("up", num_visible_trees_up)
+    # logger.debug("left", num_visible_trees_left)
+    # logger.debug("down", num_visible_trees_down)
+    # logger.debug("right", num_visible_trees_right)
 
     return (
         num_visible_trees_up
@@ -202,14 +167,50 @@ def calculate_scenic_score(forest, row_index, col_index):
     )
 
 
-def part_two(lines):
+def solve_part_one(lines):
+    forest_tree_height = parse_forest_tree_height(lines)
+    forest_tree_visible = build_forest_tree_visible(forest_tree_height)
+
+    print_forest(forest_tree_height)
+    print_forest(forest_tree_visible)
+
+    logger.debug("Look from left")
+    forest_tree_visible = look_from_side(
+        forest_tree_height, forest_tree_visible, "left"
+    )
+    logger.debug("After look from left")
+    print_forest(forest_tree_visible)
+
+    logger.debug("Look from top")
+    forest_tree_visible = look_from_side(forest_tree_height, forest_tree_visible, "top")
+    logger.debug("After look from top")
+    print_forest(forest_tree_visible)
+
+    logger.debug("Look from right")
+    forest_tree_visible = look_from_side(
+        forest_tree_height, forest_tree_visible, "right"
+    )
+    logger.debug("After look from right")
+    print_forest(forest_tree_visible)
+
+    logger.debug("Look from bottom")
+    forest_tree_visible = look_from_side(
+        forest_tree_height, forest_tree_visible, "bottom"
+    )
+    logger.debug("After look from bottom")
+    print_forest(forest_tree_visible)
+
+    return numpy.count_nonzero(forest_tree_visible == "Y")
+
+
+def solve_part_two(lines):
     # find tree with highest scenic score
     forest = parse_forest_tree_height(lines)
     scenic_scores = numpy.zeros(forest.shape)
 
     # example puzzle input
-    print(calculate_scenic_score(forest, 1, 2))  # 4
-    print(calculate_scenic_score(forest, 3, 2))  # 8
+    logger.debug(calculate_scenic_score(forest, 1, 2))  # 4
+    logger.debug(calculate_scenic_score(forest, 3, 2))  # 8
 
     for row_index, row in enumerate(forest):
         for col_index, _ in enumerate(row):
@@ -217,21 +218,6 @@ def part_two(lines):
                 forest, row_index, col_index
             )
 
-    print(scenic_scores)
-    print(scenic_scores.max())
+    logger.debug(scenic_scores)
 
-
-def main(input_file):
-    input_file_path = Path(input_file)
-
-    with open(input_file_path, "r") as fh:
-        lines = [line for line in fh.read().splitlines()]
-
-    # part_one(lines)
-    part_two(lines)
-
-
-if __name__ == "__main__":
-    input_file = sys.argv[1]
-
-    main(input_file)
+    return scenic_scores.max()
