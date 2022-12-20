@@ -1,3 +1,4 @@
+from collections import namedtuple
 from dataclasses import dataclass
 from enum import Enum
 
@@ -8,10 +9,9 @@ class Movement:
     delta_column: int
 
 
-class Move(Enum):
-    DOWN = Movement(1, 0)
-    DOWN_LEFT = Movement(1, -1)
-    DOWN_RIGHT = Movement(1, 1)
+DOWN = Movement(1, 0)
+DOWN_LEFT = Movement(1, -1)
+DOWN_RIGHT = Movement(1, 1)
 
 
 @dataclass(eq=True, frozen=True)
@@ -28,6 +28,28 @@ class Coordinate:
         return Coordinate(
             row=self.row - move.delta_row, column=self.column - move.delta_column
         )
+
+
+# Coordinate = namedtuple("Coordinate", ["row", "column"])
+
+
+# class Coordinate:
+#     def __init__(self, row, column) -> None:
+#         self.row = row
+#         self.column = column
+#         self.__hash
+
+#     def __eq__(self, other):
+#         if type(other) is type(self):
+#             return (self.row, self.column) == (other.row, other.column)
+#         else:
+#             return False
+
+#     def __hash__(self):
+#         return hash((self.row, self.column))
+
+#     def __repr__(self):
+#         return f"Coordinate(row={self.row}, column={self.column})"
 
 
 def line_coordinates(start: Coordinate, end: Coordinate):
@@ -74,10 +96,24 @@ def parse(lines):
 
 
 def get_possible_coordinates(start):
+    # return [
+    #     start + Move.DOWN.value,
+    #     start + Move.DOWN_LEFT.value,
+    #     start + Move.DOWN_RIGHT.value,
+    # ]
     return [
-        start + Move.DOWN.value,
-        start + Move.DOWN_LEFT.value,
-        start + Move.DOWN_RIGHT.value,
+        Coordinate(
+            start.row + DOWN.delta_row,
+            start.column + DOWN.delta_column,
+        ),
+        Coordinate(
+            start.row + DOWN_LEFT.delta_row,
+            start.column + DOWN_LEFT.delta_column,
+        ),
+        Coordinate(
+            start.row + DOWN_RIGHT.delta_row,
+            start.column + DOWN_RIGHT.delta_column,
+        ),
     ]
 
 
@@ -86,9 +122,11 @@ class Map:
         self.rocks = rocks
         self.sand = set()
         self.start = start
+        self.calculate_size()
 
-        rows = [coordinate.row for coordinate in rocks]
-        columns = [coordinate.column for coordinate in rocks]
+    def calculate_size(self):
+        rows = [coordinate.row for coordinate in self.rocks]
+        columns = [coordinate.column for coordinate in self.rocks]
         self.min_row, self.max_row = 0, max(rows)
         self.min_column, self.max_column = min(columns), max(columns)
         self.width = self.max_column - self.min_column + 1
@@ -141,16 +179,8 @@ class Map:
 def pour_unit_of_sand_from_source(map: Map):
     coordinate = map.start
 
-    while True:
-        # breakpoint()
-
+    while coordinate.row <= map.max_row:
         for new_coordinate in get_possible_coordinates(coordinate):
-            # finish this iteration when the sand pours off the map
-            if map.is_on_map(new_coordinate) is False:
-                # breakpoint()
-                return False
-
-            # got to next iteration
             if map.is_air(new_coordinate):
                 coordinate = new_coordinate
                 break
@@ -158,9 +188,39 @@ def pour_unit_of_sand_from_source(map: Map):
         # not moved (no break) and still on map
         else:
             map.draw_sand(coordinate)
-            # if coordinate == map.start:
-            #     return False
+            if coordinate == map.start:
+                return False
             return True
+
+    return False
+
+
+def simulate_sand(filled, max_y):
+
+    x, y = 500, 0
+
+    while y <= max_y:
+        if (x, y + 1) not in filled:
+            y += 1
+            continue
+
+        if (x - 1, y + 1) not in filled:
+            x -= 1
+            y += 1
+            continue
+
+        if (x + 1, y + 1) not in filled:
+            x += 1
+            y += 1
+            continue
+
+        # Everything filled, come to rest
+        filled.add((x, y))
+        if (x, y) == (500, 0):
+            return False
+        return True
+
+    return False
 
 
 def solve_part_one(lines):
@@ -168,18 +228,58 @@ def solve_part_one(lines):
 
     map = Map(rocks=rocks, start=Coordinate(row=0, column=500))
 
-    print(map.min_row, map.max_row, map.min_column, map.max_column)
-    print(map.width, map.height)
-
     units_of_sand = 0
 
     while pour_unit_of_sand_from_source(map):
         units_of_sand += 1
 
-    map.print()
+    filled = set()
+    filled.update([(c.column, c.row) for c in map.rocks])
+
+    # while simulate_sand(filled, map.max_row):
+    #     units_of_sand += 1
+
+    # breakpoint()
+
+    # map.print()
 
     return units_of_sand
 
 
 def solve_part_two(lines):
-    pass
+    rocks = parse(lines)
+
+    map = Map(rocks=rocks, start=Coordinate(row=0, column=500))
+
+    # add one line of rock
+    line_of_rock = []
+
+    required_width = 2 * (map.height + 2) + 1
+
+    min_column = map.start.column - ((required_width - 1) // 2)
+    max_column = map.start.column + ((required_width - 1) // 2)
+
+    for column in range(min_column, max_column + 1):
+        line_of_rock.append(Coordinate(row=map.max_row + 2, column=column))
+
+    map.rocks.update(line_of_rock)
+    map.calculate_size()
+
+    map.max_row
+
+    units_of_sand = 0
+
+    # while pour_unit_of_sand_from_source(map):
+    #     units_of_sand += 1
+
+    filled = set()
+    filled.update([(c.column, c.row) for c in map.rocks])
+
+    while simulate_sand(filled, map.max_row):
+        units_of_sand += 1
+
+    # breakpoint()
+
+    # map.print()
+
+    return units_of_sand

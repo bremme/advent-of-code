@@ -8,7 +8,11 @@ import time
 from aoc_2022.day_11 import monkey_in_the_middle
 from aoc_2022.day_12 import hill_climbing_algorithm
 from aoc_2022.day_13 import distress_signal
-from aoc_2022.day_14 import regolith_reservoir_naive, regolith_reservoir_optimized
+from aoc_2022.day_14 import (
+    regolith_reservoir,
+    regolith_reservoir_list,
+    regolith_reservoir_set,
+)
 from aoc_2022.utils.utils import read_puzzle_input, read_puzzle_input_file
 from ipdb import launch_ipdb_on_exception
 
@@ -23,8 +27,9 @@ MODULES = {
     12: {"default": hill_climbing_algorithm},
     13: {"default": distress_signal},
     14: {
-        "default": regolith_reservoir_naive,
-        "optimized": regolith_reservoir_optimized,
+        "default": regolith_reservoir,
+        "list": regolith_reservoir_list,
+        "set": regolith_reservoir_set,
     },
 }
 
@@ -51,7 +56,7 @@ def _solve_puzzles(day, part, module, lines):
 
 
 class profile:
-    def __init__(self, sortby="totime", amount=1) -> None:
+    def __init__(self, sortby="totime", amount=1.0) -> None:
         self.sortby = sortby
         self.amount = amount
         self.profile = cProfile.Profile()
@@ -112,7 +117,7 @@ def main():
 
     elif args.profile:
 
-        with profile(sortby="tottime", amount=10) as _:
+        with profile(sortby="cumtime", amount=10) as _:
             _solve_puzzles(day=args.day, part=args.part, module=module, lines=lines)
 
     else:
