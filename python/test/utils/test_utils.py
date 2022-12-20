@@ -23,7 +23,7 @@ class TestUtils(unittest.TestCase):
         ]
 
         for line, result in lines:
-            self.assertEqual(utils.read_positive_integers(line), result)
+            self.assertEqual(utils.parse_positive_integers(line), result)
 
     def test_read_integers(self):
         lines = [
@@ -33,7 +33,7 @@ class TestUtils(unittest.TestCase):
         ]
 
         for line, result in lines:
-            self.assertEqual(utils.read_integers(line), result)
+            self.assertEqual(utils.parse_integers(line), result)
 
 
 if __name__ == "__main__":

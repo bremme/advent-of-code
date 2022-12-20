@@ -1,25 +1,17 @@
+from aoc_2022.utils import utils
+
+
 def parse(lines):
 
     result = []
 
     for line in lines:
-        sensor_string, beacon_string = line.split(": ")
-        sensor = tuple(
-            [
-                int(value)
-                for value in sensor_string.replace("Sensor at x=", "")
-                .replace(" y=", "")
-                .split(",")
-            ][::-1]
-        )
-        beacon = tuple(
-            [
-                int(value)
-                for value in beacon_string.replace("closest beacon is at x=", "")
-                .replace(" y=", "")
-                .split(",")
-            ][::-1]
-        )
+        numbers = utils.parse_integers(line)
+
+        sensor = tuple(reversed(numbers[:2]))
+
+        beacon = tuple(reversed(numbers[2:]))
+
         distance = calculate_manhattan_distance(sensor, beacon)
 
         result.append((sensor, beacon, distance))

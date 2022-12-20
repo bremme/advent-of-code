@@ -28,13 +28,13 @@ def parse_args():
     return args
 
 
-def read_positive_integers(line: str):
+def parse_positive_integers(line: str):
     return list(map(int, re.findall(r"\d+", line)))
 
 
-def read_integers(line: str):
+def parse_integers(line: str):
     return list(map(int, re.findall(r"-?\d+", line)))
 
 
-def read_floats(line: str):
+def parse_floats(line: str):
     return list(map(float, re.findall(r"-?\d+\.?\d*", line)))
