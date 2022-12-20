@@ -167,7 +167,7 @@ def calculate_scenic_score(forest, row_index, col_index):
     )
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     forest_tree_height = parse_forest_tree_height(lines)
     forest_tree_visible = build_forest_tree_visible(forest_tree_height)
 

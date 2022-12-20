@@ -46,7 +46,7 @@ def get_item_priority(item: str):
     raise ValueError(f"Item should be one [a-z|A-Z] character: '{item}'")
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     sum_of_priorities = 0
 
     for content in lines:

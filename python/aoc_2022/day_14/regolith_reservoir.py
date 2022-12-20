@@ -130,7 +130,7 @@ def add_floor(cave, source):
     return cave
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     source = 0, 500
 
     cave = parse_cave(lines)

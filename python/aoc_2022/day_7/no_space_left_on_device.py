@@ -142,7 +142,7 @@ def find_directories_with_size(directory: Directory, threshold, comparison):
     return result
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     root = parse_puzzle_input(lines)
     maximum_size = 100_000
 

@@ -8,6 +8,7 @@ def find_markers(lines, num_chars):
 
     return marker_indices[0] if len(marker_indices) == 1 else marker_indices
 
+
 def find_marker(buffer, num_chars):
     for i in range(0, len(buffer) - num_chars):
         window = buffer[i : i + num_chars]
@@ -17,7 +18,7 @@ def find_marker(buffer, num_chars):
             return i + num_chars
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     start_message_marker_distinct_chars = 4
     return find_markers(lines, num_chars=start_message_marker_distinct_chars)
 

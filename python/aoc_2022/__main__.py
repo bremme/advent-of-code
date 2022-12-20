@@ -81,21 +81,21 @@ def _setup_logger(verbose):
         logging.getLogger().setLevel(logging.INFO)
 
 
-def _solve_puzzles(day, title, part, module, lines):
+def _solve_puzzles(day, title, part, module, lines, example):
 
     logger.info(f"---- Day {day}: {title} ---")
 
     if part in [1, None]:
-        logger.info("--- Part One ---")
+        logger.info(f"--- Part One {'Example' if example else ''}---")
         start = time.time()
-        answer_part_one = module.solve_part_one(lines)
+        answer_part_one = module.solve_part_one(lines, example)
         duration_ms = (time.time() - start) * 1_000
         logger.info(f"Answer part one: {answer_part_one}\t(took {duration_ms:,.3f} ms)")
 
     if part in [2, None]:
-        logger.info("--- Part Two ---")
+        logger.info(f"--- Part Two {'Example' if example else ''}---")
         start = time.time()
-        answer_part_two = module.solve_part_two(lines)
+        answer_part_two = module.solve_part_two(lines, example)
         duration_ms = (time.time() - start) * 1_000
         logger.info(f"Answer part two: {answer_part_two}\t(took {duration_ms:,.3f} ms)")
 
@@ -141,38 +141,33 @@ def main():
         raise RuntimeError(f"No puzzle defined for day {args.day}")
 
     module = puzzle["variants"].get(args.variant, None)
+
+    if module is None:
+        raise RuntimeError("No module defined for thid variant '{args.variant}'")
+
     title = puzzle["title"]
+
+    solve_puzzle_args = {
+        "day": args.day,
+        "title": title,
+        "part": args.part,
+        "module": module,
+        "lines": lines,
+        "example": args.example,
+    }
 
     if args.debug:
 
         with launch_ipdb_on_exception():
-            _solve_puzzles(
-                day=args.day,
-                title=title,
-                part=args.part,
-                module=module,
-                lines=lines,
-            )
+            _solve_puzzles(**solve_puzzle_args)
 
     elif args.profile:
 
-        with profile(sortby="cumtime", amount=10) as _:
-            _solve_puzzles(
-                day=args.day,
-                title=title,
-                part=args.part,
-                module=module,
-                lines=lines,
-            )
+        with profile(sortby="tottime", amount=20) as _:
+            _solve_puzzles(**solve_puzzle_args)
 
     else:
-        _solve_puzzles(
-            day=args.day,
-            title=title,
-            part=args.part,
-            module=module,
-            lines=lines,
-        )
+        _solve_puzzles(**solve_puzzle_args)
 
 
 if __name__ == "__main__":

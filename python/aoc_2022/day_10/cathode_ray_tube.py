@@ -135,7 +135,7 @@ def parse_instructions(lines):
     return instructions
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     instructions = parse_instructions(lines)
 
     memory = Memory(instructions=instructions)

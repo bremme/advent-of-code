@@ -128,7 +128,7 @@ def merge_sort(items):
         k += 1
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     packet_pair_index = 1
 
     packet_pairs_results = {True: [], False: []}

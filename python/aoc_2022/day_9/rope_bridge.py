@@ -208,7 +208,7 @@ def solve_part_one_2(lines):
     return len(visited_points_tail)
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     series_of_motions = parse_series_of_motions(lines)
     start, size = determine_playground(series_of_motions)
     print(f"Head starts at {start} on playground with size {size}")

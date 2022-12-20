@@ -132,7 +132,7 @@ def find_shortest_path(map: Map, start, is_end, direction="up"):
             heappush(heap, (distance + 1, destination[0], destination[1]))
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     map = parse_height_map(lines)
 
     # we finish

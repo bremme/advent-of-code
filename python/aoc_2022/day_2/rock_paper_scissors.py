@@ -61,7 +61,7 @@ def determine_my_shape_for_given_outcome(opponent_shape, outcome):
         return "Paper"
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     total_score = 0
 
     for line in lines:

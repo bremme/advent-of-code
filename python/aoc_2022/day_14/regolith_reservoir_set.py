@@ -223,7 +223,7 @@ def simulate_sand(filled, max_y):
     return False
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     rocks = parse(lines)
 
     map = Map(rocks=rocks, start=Coordinate(row=0, column=500))

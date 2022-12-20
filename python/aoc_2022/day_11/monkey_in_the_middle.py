@@ -176,7 +176,7 @@ def play_rounds(monkeys: list[Monkey], num_rounds, part):
     return monkey_business
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     monkeys = parse_monkeys(lines)
 
     monkey_business = play_rounds(monkeys=monkeys, num_rounds=20, part="one")

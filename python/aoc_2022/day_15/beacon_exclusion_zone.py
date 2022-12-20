@@ -1,3 +1,5 @@
+from hashlib import new
+
 from numpy import half
 
 
@@ -7,18 +9,22 @@ def parse(lines):
 
     for line in lines:
         sensor_string, beacon_string = line.split(": ")
-        sensor = [
-            int(value)
-            for value in sensor_string.replace("Sensor at x=", "")
-            .replace(" y=", "")
-            .split(",")
-        ][::-1]
-        beacon = [
-            int(value)
-            for value in beacon_string.replace("closest beacon is at x=", "")
-            .replace(" y=", "")
-            .split(",")
-        ][::-1]
+        sensor = tuple(
+            [
+                int(value)
+                for value in sensor_string.replace("Sensor at x=", "")
+                .replace(" y=", "")
+                .split(",")
+            ][::-1]
+        )
+        beacon = tuple(
+            [
+                int(value)
+                for value in beacon_string.replace("closest beacon is at x=", "")
+                .replace(" y=", "")
+                .split(",")
+            ][::-1]
+        )
         distance = calculate_manhattan_distance(sensor, beacon)
 
         result.append((sensor, beacon, distance))
@@ -64,24 +70,39 @@ def calculate_num_positions_which_cant_contain_beacon(data, scan_row):
 
     for sensor, beacon, distance in data:
         row, column = sensor
-        # check if this sensor can scan up to this row
+
+        # check if sensor beam intersects with scan row
         if (row + distance) < scan_row and (row - distance) > scan_row:
+            print("skip {sensor}")
             continue
 
         half_width = distance - abs(row - scan_row)
 
         for column in range(column - half_width, column + half_width):
-            positions_with_no_beacon.add((scan_row, column))
+            new_position = (scan_row, column)
+            positions_with_no_beacon.add(new_position)
 
     return len(positions_with_no_beacon)
 
 
-def solve_part_one(lines):
-    data = parse(lines)
-    return calculate_num_positions_which_cant_contain_beacon(data, scan_row=2000000)
+def calculate_tuning_frequency(beacon):
+    row, column = beacon
 
-    # grid = [["."] * columns for _ in range(rows)]
+    return column * 4_000_000 + row
 
 
-def solve_part_two(lines):
+def find_distress_beacon_position(data, max_coordinate):
     pass
+
+
+def solve_part_one(lines, example):
+
+    scan_row = 10 if example else 2_000_000
+
+    data = parse(lines)
+
+    return calculate_num_positions_which_cant_contain_beacon(data, scan_row=scan_row)
+
+
+def solve_part_two(lines, example):
+    max_coordinate = 20 if example else 4_000_000

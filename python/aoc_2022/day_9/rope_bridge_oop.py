@@ -165,7 +165,7 @@ def parse_series_of_motions(lines) -> list[Motion]:
     return series_of_motions
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     robe = Robe(number_of_knots=1)
 
     series_of_motions = parse_series_of_motions(lines)

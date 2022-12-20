@@ -253,7 +253,7 @@ class Map:
             printer("".join(self.grid[row]))
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     paths, map = parse(lines)
 
     map.draw_paths(paths)

@@ -58,7 +58,7 @@ def get_crates_on_top(stacks):
     return "".join([stack[-1] for stack in stacks])
 
 
-def solve_part_one(lines):
+def solve_part_one(lines, example=False):
     stacks = parse_stacks(lines)
 
     procedures = parse_procedures(lines)
