@@ -64,23 +64,44 @@ def calculate_manhattan_distance(point_one, point_two):
     return abs(column_one - column_two) + abs(row_one - row_two)
 
 
+def does_sensor_beam_intersect(sensor, distance, intersection_row):
+    row, _ = sensor
+
+    # intersection is below and beam down intersects
+    if row <= intersection_row and (row + distance) >= intersection_row:
+        return True
+
+    # intersection is above and beam up intersects
+    if row >= intersection_row and (row - distance) <= intersection_row:
+        return True
+
+    return False
+
+
+def calculate_sensor_beam_intersection(sensor, distance, intersection_row):
+    row, column = sensor
+    half_beam_width = distance - abs(row - intersection_row)
+
+    if half_beam_width == 0:
+        return [column]
+
+    return [
+        column for column in range(column - half_beam_width, column + half_beam_width)
+    ]
+
+
 def calculate_num_positions_which_cant_contain_beacon(data, scan_row):
 
     positions_with_no_beacon = set()
 
     for sensor, beacon, distance in data:
-        row, column = sensor
 
         # check if sensor beam intersects with scan row
-        if (row + distance) < scan_row and (row - distance) > scan_row:
-            print("skip {sensor}")
+        if not does_sensor_beam_intersect(sensor, distance, scan_row):
             continue
 
-        half_width = distance - abs(row - scan_row)
-
-        for column in range(column - half_width, column + half_width):
-            new_position = (scan_row, column)
-            positions_with_no_beacon.add(new_position)
+        intersection = calculate_sensor_beam_intersection(sensor, distance, scan_row)
+        positions_with_no_beacon.update(intersection)
 
     return len(positions_with_no_beacon)
 
