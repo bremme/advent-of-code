@@ -1,8 +1,3 @@
-from hashlib import new
-
-from numpy import half
-
-
 def parse(lines):
 
     result = []
@@ -94,7 +89,7 @@ def calculate_num_positions_which_cant_contain_beacon(data, scan_row):
 
     positions_with_no_beacon = set()
 
-    for sensor, beacon, distance in data:
+    for sensor, _, distance in data:
 
         # check if sensor beam intersects with scan row
         if not does_sensor_beam_intersect(sensor, distance, scan_row):

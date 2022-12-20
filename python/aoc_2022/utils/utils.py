@@ -1,4 +1,5 @@
 import argparse
+import re
 from pathlib import Path
 
 DATA_DIRECTORY = Path(__file__).parent.parent.parent.parent / "data"
@@ -25,3 +26,15 @@ def parse_args():
     args = parser.parse_args()
 
     return args
+
+
+def read_positive_integers(line: str):
+    return list(map(int, re.findall(r"\d+", line)))
+
+
+def read_integers(line: str):
+    return list(map(int, re.findall(r"-?\d+", line)))
+
+
+def read_floats(line: str):
+    return list(map(float, re.findall(r"-?\d+\.?\d*", line)))
