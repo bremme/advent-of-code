@@ -1,5 +1,8 @@
 import argparse
+import cProfile
+import io
 import logging
+import pstats
 import time
 
 from aoc_2022.day_11 import monkey_in_the_middle
@@ -47,6 +50,28 @@ def _solve_puzzles(day, part, module, lines):
         logger.info(f"Answer part two: {answer_part_two}\t(took {duration_ms:,.3f} ms)")
 
 
+class profile:
+    def __init__(self, sortby="totime", amount=1) -> None:
+        self.sortby = sortby
+        self.amount = amount
+        self.profile = cProfile.Profile()
+
+    def __enter__(self):
+        self.profile.enable()
+        return self.profile
+
+    def __exit__(self, type, value, traceback):
+        self.profile.disable()
+        stream = io.StringIO()
+
+        stats = (
+            pstats.Stats(self.profile, stream=stream)
+            .sort_stats(self.sortby)
+            .print_stats(self.amount)
+        )
+        print(stream.getvalue())
+
+
 def main():
 
     parser = argparse.ArgumentParser(prog="Advent of Code")
@@ -59,6 +84,7 @@ def main():
     parser.add_argument("-f", "--file", type=str, dest="input_file")
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument("--debug", action="store_true")
+    parser.add_argument("--profile", action="store_true")
 
     args = parser.parse_args()
 
@@ -80,8 +106,15 @@ def main():
     module = MODULES.get(args.day).get(args.variant)
 
     if args.debug:
+
         with launch_ipdb_on_exception():
             _solve_puzzles(day=args.day, part=args.part, module=module, lines=lines)
+
+    elif args.profile:
+
+        with profile(sortby="tottime", amount=10) as _:
+            _solve_puzzles(day=args.day, part=args.part, module=module, lines=lines)
+
     else:
         _solve_puzzles(day=args.day, part=args.part, module=module, lines=lines)
 
