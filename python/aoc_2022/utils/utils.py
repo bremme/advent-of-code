@@ -38,3 +38,50 @@ def parse_integers(line: str):
 
 def parse_floats(line: str):
     return list(map(float, re.findall(r"-?\d+\.?\d*", line)))
+
+
+# loop functions
+
+
+def pairs(items):
+    # loop with 2 items at a time (one pair)
+    for index in range(0, len(items) - 1, 2):
+        yield items[index], items[index + 1]
+
+
+def pairs_flipped(items):
+    # loop with 2 items at a time (one pair)
+    for index in range(0, len(items) - 1, 2):
+        yield items[index + 1], items[index]
+
+
+def double_pairs(items):
+    # loop with 4 items, two pais at a time
+    for i in range(0, len(items) - 2, 4):
+        first = items[i], items[i + 1]
+        second = items[i + 2], items[i + 3]
+        yield first, second
+
+
+def double_pairs_flipped(items):
+    # loop with 4 items, two pais at a time
+    for i in range(0, len(items) - 2, 4):
+        first = items[i + 1], items[i]
+        second = items[i + 3], items[i + 2]
+        yield first, second
+
+
+def double_pairs_overlapping(items):
+    # loop with 4 items, two pais at a time
+    for i in range(0, len(items) - 2, 2):
+        first = items[i], items[i + 1]
+        second = items[i + 2], items[i + 3]
+        yield first, second
+
+
+def double_pairs_flipped_overlapping(items):
+    # loop with 4 items, two pais at a time
+    for i in range(0, len(items) - 2, 2):
+        first = items[i + 1], items[i]
+        second = items[i + 3], items[i + 2]
+        yield first, second

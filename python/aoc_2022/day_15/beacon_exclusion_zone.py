@@ -19,31 +19,6 @@ def parse(lines):
     return result
 
 
-def calculate_triange_area(x1, y1, x2, y2, x3, y3):
-    return abs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0)
-
-
-def is_in_triangle_area(x1, y1, x2, y2, x3, y3, x, y):
-    # Calculate area of triangle ABC
-    A = calculate_triange_area(x1, y1, x2, y2, x3, y3)
-
-    # Calculate area of triangle PBC
-    A1 = calculate_triange_area(x, y, x2, y2, x3, y3)
-
-    # Calculate area of triangle PAC
-    A2 = calculate_triange_area(x1, y1, x, y, x3, y3)
-
-    # Calculate area of triangle PAB
-    A3 = calculate_triange_area(x1, y1, x2, y2, x, y)
-
-    # Check if sum of A1, A2 and A3
-    # is same as A
-    if A == A1 + A2 + A3:
-        return True
-    else:
-        return False
-
-
 def calculate_manhattan_distance(point_one, point_two):
     row_one, column_one = point_one
     row_two, column_two = point_two
@@ -69,6 +44,7 @@ def calculate_sensor_beam_intersection(sensor, distance, intersection_row):
     row, column = sensor
     half_beam_width = distance - abs(row - intersection_row)
 
+    # special case when only the tip of the beam intersects
     if half_beam_width == 0:
         return [column]
 
@@ -88,6 +64,7 @@ def calculate_num_positions_which_cant_contain_beacon(data, scan_row):
             continue
 
         intersection = calculate_sensor_beam_intersection(sensor, distance, scan_row)
+
         positions_with_no_beacon.update(intersection)
 
     return len(positions_with_no_beacon)

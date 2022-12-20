@@ -1,5 +1,7 @@
 import logging
 
+from aoc_2022.utils import utils
+
 logger = logging.getLogger()
 
 rock_symbol = "🟫"
@@ -45,10 +47,12 @@ def parse_cave(lines):
     cave = {}
 
     for line in lines:
-        numbers = [int(element) for element in line.replace(" -> ", ",").split(",")]
-        for i in range(0, len(numbers) - 2, 2):
-            start = numbers[i + 1], numbers[i]
-            end = numbers[i + 3], numbers[i + 2]
+        numbers = utils.parse_positive_integers(line)
+
+        for start, end in utils.double_pairs_flipped_overlapping(numbers):
+            # for i in range(0, len(numbers) - 2, 2):
+            #     start = numbers[i + 1], numbers[i]
+            #     end = numbers[i + 3], numbers[i + 2]
             coordinates = convert_line_to_coordinates(start, end)
             for c in coordinates:
                 cave[c] = rock_symbol
