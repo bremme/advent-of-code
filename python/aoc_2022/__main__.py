@@ -4,11 +4,11 @@ import io
 import logging
 import pstats
 import time
-from ast import arg
 from pathlib import Path
 from typing import Optional
 
 from aoc_2022.app.puzzle_finder import Puzzle, PuzzleFinder
+from aoc_2022.utils import utils
 from aoc_2022.utils.utils import read_puzzle_input, read_puzzle_input_file
 from ipdb import launch_ipdb_on_exception
 
@@ -46,7 +46,7 @@ def _setup_logger(verbose):
 def _solve_puzzles(
     puzzle: Puzzle, variant: str, part: Optional[int], lines: list[str], example: bool
 ):
-
+    assert_answer = False
     solution = puzzle.get_solution(variant)
 
     logger.info(f"---- Day {puzzle.day}: {puzzle.title} ---")
@@ -58,12 +58,36 @@ def _solve_puzzles(
         duration_ms = (time.time() - start) * 1_000
         logger.info(f"Answer part one: {answer_part_one}\t(took {duration_ms:,.3f} ms)")
 
+        if assert_answer:
+            expected_answer = utils.read_puzzle_answer(
+                day=puzzle.day, year=2022, part=1, example=example
+            )
+
+            if answer_part_one != expected_answer:
+                raise AssertionError(f"{answer_part_one} != {expected_answer}")
+
+            logger.info(
+                f"Assertion of answer was successfull ({answer_part_one} == {expected_answer})"
+            )
+
     if part in [2, None]:
         logger.info(f"--- Part Two {'Example' if example else ''}---")
         start = time.time()
         answer_part_two = solution.module.solve_part_two(lines, example)
         duration_ms = (time.time() - start) * 1_000
         logger.info(f"Answer part two: {answer_part_two}\t(took {duration_ms:,.3f} ms)")
+
+        if assert_answer:
+            expected_answer = utils.read_puzzle_answer(
+                day=puzzle.day, year=2022, part=2, example=example
+            )
+
+            if answer_part_two != expected_answer:
+                raise AssertionError(f"{answer_part_one} != {expected_answer}")
+
+            logger.info(
+                f"Assertion of answer was successfull ({answer_part_two} == {expected_answer})"
+            )
 
 
 class profile:
@@ -101,7 +125,7 @@ def main():
     if args.input_file:
         lines = read_puzzle_input_file(args.input_file)
     else:
-        lines = read_puzzle_input(args.day, args.example)
+        lines = read_puzzle_input(args.day, 2022, args.example)
 
     puzzle = puzzles.get_puzzle(args.day)
 

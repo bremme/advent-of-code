@@ -1,13 +1,36 @@
 import argparse
+import json
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
 DATA_DIRECTORY = Path(__file__).parent.parent.parent.parent / "data"
 
 
+@dataclass
+class PuzzleAnswers:
+    part: int
+    example: bool
+    value: int
+
+
+@dataclass
+class PuzzleAnswerCollection:
+    answers: list[PuzzleAnswers]
+
+    def get_puzzle_answer(self, part, example):
+        for answer in self.answers:
+            if answer.part == part and answer.example == example:
+                return answer
+        raise ValueError("No answer for ")
+
+
 def read_puzzle_input(day: int, year: int, example: bool) -> list[str]:
     input_file = (
-        DATA_DIRECTORY / f"day_{day}_puzzle_input{'_example' if example else ''}.txt"
+        DATA_DIRECTORY
+        / f"{year}"
+        / f"day_{day}"
+        / f"puzzle_input{'_example' if example else ''}.txt"
     )
     return read_puzzle_input_file(input_file)
 
@@ -15,6 +38,21 @@ def read_puzzle_input(day: int, year: int, example: bool) -> list[str]:
 def read_puzzle_input_file(input_file) -> list[str]:
     with open(input_file, "r", encoding="utf-8") as fh:
         return [line for line in fh.read().splitlines()]
+
+
+def read_puzzle_answer(day: int, year: int, part: int, example: bool):
+    answer_file = (
+        DATA_DIRECTORY
+        / f"{year}"
+        / f"day_{day}"
+        / f"puzzle_answer{'_example' if example else ''}.json"
+    )
+    parts = {1: "one", 2: "two"}
+
+    with open(answer_file, "r") as fh:
+        data = json.load(fh)
+
+        return data[f"part_{parts[part]}"]
 
 
 def parse_args():

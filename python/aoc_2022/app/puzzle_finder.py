@@ -1,5 +1,6 @@
 import importlib
 from dataclasses import dataclass
+from operator import mod
 from pathlib import Path
 from types import ModuleType
 
@@ -50,6 +51,9 @@ class PuzzleFinder:
                 continue
 
             module_names = PuzzleFinder.find_module_names(module_dir)
+
+            if len(module_names) == 0:
+                continue
 
             default_module_name = PuzzleFinder.remove_default_module_name(module_names)
 
