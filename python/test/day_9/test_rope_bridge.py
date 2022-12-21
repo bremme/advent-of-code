@@ -10,6 +10,7 @@ from aoc_2022.day_9.rope_bridge import (
 from aoc_2022.utils import utils
 
 DAY = 9
+YEAR = 2022
 
 
 class TestRopeBridge(unittest.TestCase):
@@ -48,7 +49,7 @@ class TestRopeBridge(unittest.TestCase):
     #         self.assertFalse(touches)
 
     def test_determine_playground_example(self):
-        lines = utils.read_puzzle_input(day=DAY, example=True)
+        lines = utils.read_puzzle_input(day=DAY, year=YEAR, example=True)
         series_of_motions = parse_series_of_motions(lines)
 
         start, (rows, columns) = determine_playground_2(series_of_motions)
@@ -57,7 +58,7 @@ class TestRopeBridge(unittest.TestCase):
         self.assertEqual((rows, columns), (5, 6))
 
     def test_determine_playground(self):
-        lines = utils.read_puzzle_input(day=DAY, example=False)
+        lines = utils.read_puzzle_input(day=DAY, year=YEAR, example=False)
         series_of_motions = parse_series_of_motions(lines)
 
         start, (rows, columns) = determine_playground_2(series_of_motions)
@@ -66,28 +67,28 @@ class TestRopeBridge(unittest.TestCase):
         self.assertEqual((rows, columns), (520, 233))
 
     # def test_solve_part_one_example(self):
-    #     lines = utils.read_puzzle_input(day=DAY, example=True)
+    #     lines = utils.read_puzzle_input(day=DAY, year=YEAR, example=True)
 
     #     answer = solve_part_one(lines)
 
     #     self.assertEqual(answer, 13)
 
     # def test_solve_part_one(self):
-    #     lines = utils.read_puzzle_input(day=DAY, example=False)
+    #     lines = utils.read_puzzle_input(day=DAY, year=YEAR, example=False)
 
     #     answer = solve_part_one(lines)
 
     #     self.assertEqual(answer, 6391)
 
     # def test_solve_part_two_example(self):
-    #     lines = utils.read_puzzle_input(day=DAY, example=True)
+    #     lines = utils.read_puzzle_input(day=DAY, year=YEAR, example=True)
 
     #     answer = solve_part_two(lines)
 
     #     self.assertEqual(answer, "MCD")
 
     # def test_solve_part_two(self):
-    #     lines = utils.read_puzzle_input(day=DAY, example=False)
+    #     lines = utils.read_puzzle_input(day=DAY, year=YEAR, example=False)
 
     #     answer = solve_part_two(lines)
 

@@ -28,6 +28,7 @@ class PuzzleCollection:
     puzzles: list[Puzzle]
 
     def get_puzzle(self, day: int):
+
         for puzzle in self.puzzles:
             if puzzle.day == day:
                 return puzzle
@@ -52,7 +53,7 @@ class PuzzleFinder:
 
             default_module_name = PuzzleFinder.remove_default_module_name(module_names)
 
-            default_module = PuzzleFinder.load_module(default_module_name)
+            default_module = PuzzleFinder.load_module(default_module_name, day=day)
 
             title = default_module_name.replace("_", " ").title()
 
@@ -63,7 +64,7 @@ class PuzzleFinder:
                 module = PuzzleFinder.load_module(module_name, day=day)
                 solutions.append(PuzzleSolutionVariant(name=name, module=module))
 
-            Puzzle(day=day, title=title, solutions=solutions)
+            puzzles.append(Puzzle(day=day, title=title, solutions=solutions))
 
         return PuzzleCollection(puzzles)
 

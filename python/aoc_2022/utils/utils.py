@@ -5,7 +5,7 @@ from pathlib import Path
 DATA_DIRECTORY = Path(__file__).parent.parent.parent.parent / "data"
 
 
-def read_puzzle_input(day: int, example: bool) -> list[str]:
+def read_puzzle_input(day: int, year: int, example: bool) -> list[str]:
     input_file = (
         DATA_DIRECTORY / f"day_{day}_puzzle_input{'_example' if example else ''}.txt"
     )
@@ -43,7 +43,7 @@ def parse_floats(line: str):
 # loop functions
 
 
-def pairs(items):
+def pairs(items, overlapping=False):
     # loop with 2 items at a time (one pair)
     for index in range(0, len(items) - 1, 2):
         yield items[index], items[index + 1]

@@ -13,28 +13,28 @@ EXPECTED_ANSWER_PART_TWO = 7268994
 
 class TestNoSpaceLeftOnDevice(unittest.TestCase):
     def test_solve_part_one_example(self):
-        lines = utils.read_puzzle_input(day=DAY, example=True)
+        lines = utils.read_puzzle_input(day=DAY, year=YEAR, example=True)
 
         answer = solve_part_one(lines)
 
         self.assertEqual(answer, EXPECTED_ANSWER_PART_ONE_EXAMPLE)
 
     def test_solve_part_one(self):
-        lines = utils.read_puzzle_input(day=DAY, example=False)
+        lines = utils.read_puzzle_input(day=DAY, year=YEAR, example=False)
 
         answer = solve_part_one(lines)
 
         self.assertEqual(answer, EXPECTED_ANSWER_PART_ONE)
 
     def test_solve_part_two_example(self):
-        lines = utils.read_puzzle_input(day=DAY, example=True)
+        lines = utils.read_puzzle_input(day=DAY, year=YEAR, example=True)
 
         answer = solve_part_two(lines)
 
         self.assertEqual(answer, EXPECTED_ANSWER_PART_TWO_EXAMPLE)
 
     def test_solve_part_two(self):
-        lines = utils.read_puzzle_input(day=DAY, example=False)
+        lines = utils.read_puzzle_input(day=DAY, year=YEAR, example=False)
 
         answer = solve_part_two(lines)
 

@@ -4,6 +4,7 @@ import io
 import logging
 import pstats
 import time
+from ast import arg
 from pathlib import Path
 from typing import Optional
 
@@ -26,7 +27,7 @@ def _parse_args():
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--profile", action="store_true")
-    parser.add_argumetn("--assert", action="store_true")
+    parser.add_argument("--assert", action="store_true")
 
     return parser.parse_args()
 
@@ -107,6 +108,7 @@ def main():
     solve_puzzle_args = {
         "puzzle": puzzle,
         "variant": args.variant,
+        "part": args.part,
         "lines": lines,
         "example": args.example,
     }

@@ -11,3 +11,10 @@ Run all days
 Test after run
 
 https://realpython.com/python-advent-of-code/
+
+
+Coordinate systems
+
+XY coordinates with y = down and x = right
+
+RC coordiantes with row = right and column = down
