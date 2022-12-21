@@ -8,6 +8,6 @@ Run a single day
         run real data
         run custom data
 Run all days
-
+Test after run
 
 https://realpython.com/python-advent-of-code/
