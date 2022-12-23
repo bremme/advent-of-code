@@ -1,11 +1,7 @@
 import logging
 import re
+from dataclasses import dataclass
 from enum import Enum
-
-open_tile = "."
-wall_tile = "#"
-no_tile = " "
-
 
 logger = logging.getLogger()
 
@@ -18,17 +14,30 @@ class Direction(Enum):
 
     @staticmethod
     def from_name(name):
-        number_directions = {"R": 0, "D": 1, "L": 2, "U": 3}
-        return Direction(number_directions[name])
+
+        return Direction(
+            {direction.name: direction.value for direction in Direction}[name]
+        )
+
+
+class Symbol(Enum):
+    OPEN_TILE = "."
+    WALL_TILE = "#"
+    NO_TILE = " "
+
+
+@dataclass
+class Turn:
+    direction: Direction
+
+
+@dataclass
+class Move:
+    steps: int
 
 
 direction_symbols = {"R": ">", "D": "v", "L": "<", "U": "^"}
-
-number_directions = {0: "R", 1: "D", 2: "L", 3: "U"}
-
 number_directions = {"R": 0, "D": 1, "L": 2, "U": 3}
-
-symbol_numbers = {0: ">", 1: "v", 2: "<", 3: "^"}
 
 
 def parse(lines):
@@ -37,11 +46,11 @@ def parse(lines):
 
     path_to_follow = []
 
-    for move in re.split("([URDL])", description):
-        if move.isnumeric():
-            path_to_follow.append(int(move))
+    for part in re.split("([URDL])", description):
+        if part.isnumeric():
+            path_to_follow.append(Move(steps=int(part)))
             continue
-        path_to_follow.append(Direction(number_directions[move]))
+        path_to_follow.append(Turn(direction=Direction.from_name(part)))
 
     # pop empty line
     lines.pop()
@@ -49,7 +58,7 @@ def parse(lines):
     columns = len(max(lines, key=len))
     rows = len(lines)
 
-    board = [[no_tile] * columns for _ in range(rows)]
+    board = [[Symbol.NO_TILE.value] * columns for _ in range(rows)]
 
     for row, line in enumerate(lines):
         for column, char in enumerate(line):
@@ -91,7 +100,7 @@ def determine_new_position(position, direction: Direction, max_row, max_column):
         return max_row, column
 
 
-def move_on_board(position, direction, steps, board) -> bool:
+def move_on_board(position, direction, steps: int, board: list[list[str]]) -> bool:
 
     max_row = len(board) - 1
     max_column = len(board[0]) - 1
@@ -107,17 +116,17 @@ def move_on_board(position, direction, steps, board) -> bool:
 
             tile = board[row][column]
 
-            if tile != no_tile:
+            if tile != Symbol.NO_TILE.value:
                 break
 
             position = row, column
 
         # return we hit a wall
-        if tile == wall_tile:
+        if tile == Symbol.WALL_TILE.value:
             return last_valid_position
 
         # open tile, move and descrease steps
-        if tile == open_tile or tile in ">v<^":
+        if tile == Symbol.OPEN_TILE.value or tile in ">v<^":
             board[row][column] = direction_symbols[direction.name]
             position = row, column
             last_valid_position = position
@@ -127,13 +136,25 @@ def move_on_board(position, direction, steps, board) -> bool:
     return row, column
 
 
-def change_direction(direction: Direction, turn: Direction) -> Direction:
+def change_direction(direction: Direction, turn: Turn) -> Direction:
 
-    if turn is Direction.R:
+    if turn.direction is Direction.R:
         return Direction((direction.value + 1) % 4)
 
-    if turn is Direction.L:
+    if turn.direction is Direction.L:
         return Direction((direction.value - 1) % 4)
+
+
+def determine_start(board):
+    # determine start position
+    row = 0
+    column = 0
+
+    for column in range(len(board[row])):
+        if board[row][column] == Symbol.OPEN_TILE.value:
+            break
+
+    return (row, column), Direction.R
 
 
 def calculate_final_password(position, direction):
@@ -143,30 +164,20 @@ def calculate_final_password(position, direction):
 
 def solve_part_one(lines, example):
     board, path_to_follow = parse(lines)
-    # print_board(board, print)
 
-    # determine start position
-    row = 0
-    column = 0
+    position, direction = determine_start(board)
 
-    for column in range(len(board[row])):
-        if board[row][column] == open_tile:
-            break
+    board[position[0]][position[1]] = direction_symbols[direction.name]
 
-    position = row, column
+    for action in path_to_follow:
 
-    direction = Direction.R
-    symbol = direction_symbols[direction.name]
+        if type(action) is Move:
+            position = move_on_board(
+                position, direction, steps=action.steps, board=board
+            )
 
-    board[row][column] = symbol
-
-    for move in path_to_follow:
-
-        if type(move) is int:
-            position = move_on_board(position, direction, steps=move, board=board)
-
-        if type(move) is Direction:
-            direction = change_direction(direction, turn=move)
+        if type(action) is Turn:
+            direction = change_direction(direction, turn=action)
             board[position[0]][position[1]] = direction_symbols[direction.name]
 
     print_board(board, logger.debug)
