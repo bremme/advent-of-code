@@ -27,7 +27,7 @@ def _parse_args():
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--profile", action="store_true")
-    parser.add_argument("--assert", action="store_true")
+    parser.add_argument("--assert", action="store_true", dest="assert_answer")
 
     return parser.parse_args()
 
@@ -43,10 +43,25 @@ def _setup_logger(verbose):
         logging.getLogger().setLevel(logging.INFO)
 
 
+def check_answer(day, year, part, example, answer):
+    expected_answer = utils.read_puzzle_answer(
+        day=day, year=year, part=part, example=example
+    )
+
+    if answer != expected_answer:
+        raise AssertionError(f"{answer} != {expected_answer}")
+
+    logger.info(f"Assertion of answer was successfull ({answer} == {expected_answer})")
+
+
 def _solve_puzzles(
-    puzzle: Puzzle, variant: str, part: Optional[int], lines: list[str], example: bool
+    puzzle: Puzzle,
+    variant: str,
+    part: Optional[int],
+    assert_answer: bool,
+    lines: list[str],
+    example: bool,
 ):
-    assert_answer = False
     solution = puzzle.get_solution(variant)
 
     logger.info(f"---- Day {puzzle.day}: {puzzle.title} ---")
@@ -59,15 +74,12 @@ def _solve_puzzles(
         logger.info(f"Answer part one: {answer_part_one}\t(took {duration_ms:,.3f} ms)")
 
         if assert_answer:
-            expected_answer = utils.read_puzzle_answer(
-                day=puzzle.day, year=2022, part=1, example=example
-            )
-
-            if answer_part_one != expected_answer:
-                raise AssertionError(f"{answer_part_one} != {expected_answer}")
-
-            logger.info(
-                f"Assertion of answer was successfull ({answer_part_one} == {expected_answer})"
+            check_answer(
+                day=puzzle.day,
+                year=2022,
+                part=1,
+                example=example,
+                answer=answer_part_one,
             )
 
     if part in [2, None]:
@@ -78,15 +90,12 @@ def _solve_puzzles(
         logger.info(f"Answer part two: {answer_part_two}\t(took {duration_ms:,.3f} ms)")
 
         if assert_answer:
-            expected_answer = utils.read_puzzle_answer(
-                day=puzzle.day, year=2022, part=2, example=example
-            )
-
-            if answer_part_two != expected_answer:
-                raise AssertionError(f"{answer_part_one} != {expected_answer}")
-
-            logger.info(
-                f"Assertion of answer was successfull ({answer_part_two} == {expected_answer})"
+            check_answer(
+                day=puzzle.day,
+                year=2022,
+                part=2,
+                example=example,
+                answer=answer_part_two,
             )
 
 
@@ -133,6 +142,7 @@ def main():
         "puzzle": puzzle,
         "variant": args.variant,
         "part": args.part,
+        "assert_answer": args.assert_answer,
         "lines": lines,
         "example": args.example,
     }

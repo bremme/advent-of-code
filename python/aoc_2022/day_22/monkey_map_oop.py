@@ -21,9 +21,17 @@ class Direction(Enum):
 
 
 class Symbol(Enum):
-    OPEN_TILE = "."
-    WALL_TILE = "#"
-    NO_TILE = " "
+    OPEN_TILE = "🟩"
+    WALL_TILE = "🧱"
+    NO_TILE = "⬛"
+
+    @staticmethod
+    def from_input_symbol(symbol: str):
+        return {
+            ".": Symbol.OPEN_TILE,
+            "#": Symbol.WALL_TILE,
+            " ": Symbol.NO_TILE,
+        }[symbol]
 
 
 @dataclass
@@ -36,7 +44,18 @@ class Move:
     steps: int
 
 
-direction_symbols = {"R": ">", "D": "v", "L": "<", "U": "^"}
+# ➡
+# ⬅
+# ⬆
+# ⬇
+# ➡
+# 🧱
+
+
+# direction_symbols = {"R": ">", "D": "v", "L": "<", "U": "^"}
+# direction_symbols = {"R": "➡", "D": "⬇", "L": "⬅", "U": "⬆"}
+direction_symbols = {"R": "⏩", "D": "⏬", "L": "⏪", "U": "⏫"}
+
 number_directions = {"R": 0, "D": 1, "L": 2, "U": 3}
 
 
@@ -62,7 +81,7 @@ def parse(lines):
 
     for row, line in enumerate(lines):
         for column, char in enumerate(line):
-            board[row][column] = char
+            board[row][column] = Symbol.from_input_symbol(char).value
 
     return board, path_to_follow
 
@@ -126,7 +145,10 @@ def move_on_board(position, direction, steps: int, board: list[list[str]]) -> bo
             return last_valid_position
 
         # open tile, move and descrease steps
-        if tile == Symbol.OPEN_TILE.value or tile in ">v<^":
+        # or tile in ">v<^"
+        # "➡⬇⬅⬆":
+        if tile == Symbol.OPEN_TILE.value or tile in "⏩⏬⏪⏫":
+
             board[row][column] = direction_symbols[direction.name]
             position = row, column
             last_valid_position = position
@@ -136,7 +158,7 @@ def move_on_board(position, direction, steps: int, board: list[list[str]]) -> bo
     return row, column
 
 
-def change_direction(direction: Direction, turn: Turn) -> Direction:
+def make_turn(direction: Direction, turn: Turn) -> Direction:
 
     if turn.direction is Direction.R:
         return Direction((direction.value + 1) % 4)
@@ -177,7 +199,7 @@ def solve_part_one(lines, example):
             )
 
         if type(action) is Turn:
-            direction = change_direction(direction, turn=action)
+            direction = make_turn(direction, turn=action)
             board[position[0]][position[1]] = direction_symbols[direction.name]
 
     print_board(board, logger.debug)
