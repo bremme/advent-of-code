@@ -18,3 +18,19 @@ Coordinate systems
 XY coordinates with y = down and x = right
 
 RC coordiantes with row = right and column = down
+
+
+Overall goals
+
+* learn some new things
+* use names from the problem description
+* should be readable code
+* use abstractions to improve readability
+* but maintain a reasonable amount of performance
+* ideally every day should run under 1s
+* make it clear which algorithm / strategy is used under the hood
+* add tests
+* add cli tool to make it easy to run
+* type hinting
+* github badgest
+* github actions
