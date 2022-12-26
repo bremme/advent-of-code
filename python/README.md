@@ -34,3 +34,6 @@ Overall goals
 * type hinting
 * github badgest
 * github actions
+
+
+# TODO

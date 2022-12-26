@@ -1,10 +1,6 @@
 import re
 from collections import deque
 from dataclasses import dataclass
-from functools import cache
-from lib2to3.pgen2.token import OP
-from multiprocessing import set_forkserver_preload
-from optparse import Option
 from typing import Optional
 
 from aoc_2022.utils.utils import parse_positive_integers
@@ -36,7 +32,7 @@ class ValvesState:
 
     @property
     def key(self):
-        return "".join(self.__open_valve_labels)
+        return "|".join(self.__open_valve_labels)
 
     def is_valve_open(self, valve: Valve):
         return valve.label in self.__open_valve_labels
@@ -134,27 +130,74 @@ class Puzzle:
 
     def solve(self) -> int:
         state = ValvesState()
-        for player in range(self.num_players):
+        total_released_pressure = 0
+        for _ in range(self.num_players):
+            print("begin", id(state))
+            # released_pressure, state = self.depth_first_search(
+            # time=0,
             released_pressure = self.depth_first_search(
-                time=0,
+                time_remaining=self.time_to_eruption,
                 valve=self.begin_valve,
                 state=state,
             )
+            print("end", id(state))
+            total_released_pressure += released_pressure
 
         return released_pressure
 
-    def depth_first_search(self, time: int, valve: Valve, state: ValvesState) -> int:
+    def depth_first_search(
+        self, time_remaining: int, valve: Valve, state: ValvesState
+    ) -> int:
+
+        # we have already made the calculation for this combination of input arguments
+        if (time_remaining, valve.label, state.key) in self.cache:
+            return self.cache[time_remaining, valve.label, state.key]
+
+        if time_remaining == 0:
+            return 0
+
+        # total_pressure_release = max(
+        #     self.depth_first_search(time_remaining - 1, tunnel.valve, state)
+        #     for tunnel in valve.tunnels
+        # )
+
+        total_pressures_released = []
+
+        for tunnel in valve.tunnels:
+            total_pressures_released.append(
+                self.depth_first_search(time_remaining - 1, tunnel.valve, state)
+            )
+
+        total_pressure_release = max(total_pressures_released)
+
+        if valve.flow_rate > 0 and not state.is_valve_open(valve):
+
+            new_valve_state = ValvesState.from_state(state)
+            new_valve_state.open_valve(valve)
+
+            total_pressure_release = max(
+                total_pressure_release,
+                (time_remaining - 1) * valve.flow_rate
+                + self.depth_first_search(time_remaining - 1, valve, new_valve_state),
+            )
+
+        self.cache[time_remaining, valve.label, state.key] = total_pressure_release
+
+        return total_pressure_release
+
+    def depth_first_search2(self, time: int, valve: Valve, state: ValvesState) -> int:
 
         # depth first search
+        # print(state.key)
 
         # we have already made the calculation for this combination of input arguments
         if (time, valve.label, state.key) in self.cache:
-            return self.cache[time, valve.label, state.key]
-
-        # if time_remaining == 0:
-        #     return self.depth_first_search(26, valves["AA"], state, True)
+            return self.cache[time, valve.label, state.key], state
 
         total_pressure_release = 0
+
+        new_total_pressures_released = []
+        new_states = []
 
         # loop over tunnels where this valve leads to
         for tunnel in valve.tunnels:
@@ -176,33 +219,56 @@ class Puzzle:
             new_valve_state = ValvesState.from_state(state)
             new_valve_state.open_valve(tunnel.valve)
 
-            total_pressure_release = max(
-                total_pressure_release,
-                self.depth_first_search(new_time, tunnel.valve, new_valve_state)
-                + added_pressure_release,
+            new_total_pressure_released, new_state = self.depth_first_search(
+                new_time, tunnel.valve, new_valve_state
             )
+
+            new_total_pressures_released.append(
+                new_total_pressure_released + added_pressure_release
+            )
+            new_states.append(new_state)
+
+            # new_total_pressure_released += added_pressure_release
+
+            # if new_total_pressure_released > total_pressure_release:
+            #     total_pressure_release = new_total_pressure_released
+            #     state = new_state
+
+            # total_pressure_release = max(
+            #     total_pressure_release,
+            #     self.depth_first_search(new_time, tunnel.valve, new_valve_state)[0]
+            #     + added_pressure_release,
+            # )
+
+        if len(new_total_pressures_released) > 0:
+
+            max_total_pressure_release = max(new_total_pressures_released)
+
+            if max_total_pressure_release > total_pressure_release:
+                total_pressure_release = max_total_pressure_release
+
+                index = new_total_pressures_released.index(max_total_pressure_release)
+
+                new_state = new_states[index]
+        else:
+            new_state = state
 
         self.cache[time, valve.label, state.key] = total_pressure_release
 
-        return total_pressure_release
+        return total_pressure_release, new_state
 
 
 def solve_part_one(lines: list[str], example: bool):
     valves = PuzzleInputParser.parse(lines)
+
     puzzle = Puzzle(time_to_eruption=30, begin_valve=valves["AA"], num_players=1)
 
     return puzzle.solve()
 
-    # valve = valves["AA"]
-
-    # puzzle = Puzzle(minutes_left=30, valve=valve)
-
-    # puzzle.solve()
-
-    # return puzzle.total_released_pressure
-
 
 def solve_part_two(lines: list[str], example: bool):
-    pass
-    # valves = PuzzleInputParser.parse(lines)
-    # return depth_first_search(26, valves, ValvesState(set()))
+    valves = PuzzleInputParser.parse(lines)
+
+    puzzle = Puzzle(time_to_eruption=26, begin_valve=valves["AA"], num_players=2)
+
+    return puzzle.solve()

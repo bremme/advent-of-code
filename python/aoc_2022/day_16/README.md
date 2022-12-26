@@ -60,3 +60,22 @@ Breadth-first search is more efficient in this case
 try to compress the network, valve with no flow_rate
 
 https://www.codecademy.com/learn/nonlinear-data-structures-python/modules/trees-python/cheatsheet
+
+
+
+# oxdf solutions
+
+part one:  2,303 ms
+part two: 62,649 ms
+
+https://www.youtube.com/watch?v=rN4tVLnkgJU
+https://gitlab.com/0xdf/aoc2022/-/tree/main/day16
+
+# hyper-neutrino solutions
+
+part one:    262 ms
+part two: 21,751 ms
+
+https://www.youtube.com/watch?v=bLMj50cpOug
+https://github.com/hyper-neutrino/advent-of-code/blob/main/2022/day16p1.py
+https://github.com/hyper-neutrino/advent-of-code/blob/main/2022/day16p2.py

@@ -21,7 +21,7 @@ class Puzzle:
         for solution in self.solutions:
             if solution.name == name:
                 return solution
-        raise ValueError("No module defined for this variant '{name}'")
+        raise ValueError(f"No module defined for this variant '{name}'")
 
 
 @dataclass(frozen=True)
@@ -64,7 +64,7 @@ class PuzzleFinder:
             solutions = [PuzzleSolutionVariant(name="default", module=default_module)]
 
             for module_name in module_names:
-                name = module_name.split("_")[-1]
+                name = module_name.split(f"{default_module_name}_")[-1]
                 module = PuzzleFinder.load_module(module_name, day=day)
                 solutions.append(PuzzleSolutionVariant(name=name, module=module))
 
