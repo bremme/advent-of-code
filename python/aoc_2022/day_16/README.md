@@ -55,3 +55,8 @@ https://www.youtube.com/watch?v=bLMj50cpOug
 Floyd–Warshall algorithm solves all pairs shortest paths.
 Breadth-first search is more efficient in this case
 
+
+
+try to compress the network, valve with no flow_rate
+
+https://www.codecademy.com/learn/nonlinear-data-structures-python/modules/trees-python/cheatsheet

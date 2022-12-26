@@ -1,4 +1,3 @@
-
 import re
 from dataclasses import dataclass
 from typing import Optional
@@ -12,6 +11,7 @@ class Valve:
     flow_rate: int
     open: Optional[bool] = False
     neighbours: Optional[list["Valve"]] = None
+    tunnels: Optional[list["Tunnel"]] = None
 
 
 @dataclass
@@ -20,6 +20,19 @@ class Tunnel:
     valve: Valve
 
 
+class ValvesState:
+    def __init__(self, open_valve_labels: set[str]) -> None:
+        self.open_valve_labels = open_valve_labels
+
+    def is_valve_open(self, valve_label):
+        return valve_label in self.open_valve_labels
+
+    def open_valve(self, valve_label):
+        open_valve_labels = self.open_valve_labels.copy()
+        open_valve_labels.add(valve_label)
+        return ValvesState(open_valve_labels)
+        # self.open_valve_labels.add(valve_label)
+
 
 def parse(lines: list[str]) -> dict[str, Valve]:
     neighbours = {}
@@ -27,22 +40,108 @@ def parse(lines: list[str]) -> dict[str, Valve]:
 
     for line in lines:
         labels = re.findall("[A-Z][A-Z]+", line)
+        label = labels[0]
+        neighbours_labels = labels[1:]
+
         flow_rate = parse_positive_integers(line)[0]
 
-        valve = Valve(label=labels[0], flow_rate=flow_rate)
+        valve = Valve(label=label, flow_rate=flow_rate)
 
-        neighbours[labels[0]] = labels[1:]
-
-        valves[labels[0]] = valve
+        neighbours[label] = neighbours_labels
+        valves[label] = valve
 
     for valve_label, neighbours_labels in neighbours.items():
         valves[valve_label].neighbours = [valves[label] for label in neighbours_labels]
 
+    distances = determine_distances(valves=valves)
+
+    for label, neighbour_distances in distances.items():
+        valve = valves[label]
+        valve.tunnels = []
+        for neighbour_label, neighbour_distance in neighbour_distances.items():
+            neighbour = valves[neighbour_label]
+            tunnel = Tunnel(distance=neighbour_distance, valve=neighbour)
+            valve.tunnels.append(tunnel)
+
     return valves
 
 
-class Puzzle:
+def determine_distances(valves: dict[str, Valve]):
+    from collections import deque
 
+    distances = {}
+
+    # loop over all valves
+    for label, valve in valves.items():
+
+        distances[label] = {}
+        visited = {label}
+
+        queue = deque([(0, valve)])
+
+        print(f"Find routes for {label}")
+
+        # calculate distance for every valve this valve can reach
+        while queue:
+            distance, valve = queue.popleft()
+
+            print(distance, valve.label)
+
+            for neighbour in valve.neighbours:
+
+                # this assumes the first route was shorter?
+                if neighbour.label in visited:
+                    continue
+
+                visited.add(neighbour.label)
+
+                # store distance if valve not blocked
+                if neighbour.flow_rate != 0:
+                    distances[label][neighbour.label] = distance + 1
+
+                queue.append((distance + 1, neighbour))
+
+    return distances
+
+
+# keep track of combinations of open valves
+cache = {}
+
+
+def depth_first_search(time, valve: Valve, state: ValvesState):
+
+    if (time, valve.label, hash(state)) in cache:
+        return cache[time, valve.label, hash(state)]
+
+    pressure_release = 0
+
+    for tunnel in valve.tunnels:
+
+        if state.is_valve_open(tunnel.valve.label):
+            continue
+
+        time_remaining = time - tunnel.distance - 1
+
+        # we can't reach this valve or opening it has no effect since the remaining time is 0
+        if time_remaining <= 0:
+            continue
+
+        added_pressure_release = tunnel.valve.flow_rate * time_remaining
+
+        pressure_release = max(
+            pressure_release,
+            depth_first_search(
+                time_remaining, tunnel.valve, state.open_valve(tunnel.valve.label)
+            )
+            + added_pressure_release,
+        )
+
+    cache[time, valve.label, hash(state)] = pressure_release
+
+    return pressure_release
+
+
+class Puzzle:
     def __init__(self, minutes_left: int, valve: Valve) -> None:
         self.release_pressure_per_minute = 0
         self.total_released_pressure = 0
@@ -63,10 +162,14 @@ class Puzzle:
             if len(self.open_valves) == 0:
                 print("No valves are open.")
             elif len(self.open_valves) == 1:
-                print(f"Valve {self.open_valves[0].label} is open, releasing {self.release_pressure_per_minute} pressure.")
+                print(
+                    f"Valve {self.open_valves[0].label} is open, releasing {self.release_pressure_per_minute} pressure."
+                )
             else:
                 valve_labels = ", ".join([valve.label for valve in self.open_valves])
-                print(f"Valves {valve_labels} are open, releasing {self.release_pressure_per_minute} pressure.")
+                print(
+                    f"Valves {valve_labels} are open, releasing {self.release_pressure_per_minute} pressure."
+                )
 
             self.__release_pressure()
 
@@ -104,32 +207,18 @@ class Puzzle:
         print(f"You move to valve {self.valve.label}")
 
 
-def determine_distances(valves):
-
-
-
-    for from_valve in valves:
-        for to_valve in valves:
-            if from_valve is to_valve:
-                continue
-
-
-
 def solve_part_one(lines: list[str], example: bool):
     valves = parse(lines)
 
-    valve = valves["AA"]
+    return depth_first_search(30, valves["AA"], ValvesState(set()))
 
-    puzzle = Puzzle(minutes_left=30, valve=valve)
+    # valve = valves["AA"]
 
-    puzzle.solve()
+    # puzzle = Puzzle(minutes_left=30, valve=valve)
 
-    return puzzle.total_released_pressure
+    # puzzle.solve()
 
-
-
-
-
+    # return puzzle.total_released_pressure
 
 
 def solve_part_two(lines: list[str], example: bool):
