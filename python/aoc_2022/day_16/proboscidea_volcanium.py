@@ -136,22 +136,20 @@ class Puzzle:
         state = ValvesState()
         for player in range(self.num_players):
             released_pressure = self.depth_first_search(
-                time_remaining=self.time_to_eruption,
+                time=0,
                 valve=self.begin_valve,
                 state=state,
             )
 
         return released_pressure
 
-    def depth_first_search(
-        self, time_remaining: int, valve: Valve, state: ValvesState
-    ) -> int:
+    def depth_first_search(self, time: int, valve: Valve, state: ValvesState) -> int:
 
         # depth first search
 
         # we have already made the calculation for this combination of input arguments
-        if (time_remaining, valve.label, state.key) in self.cache:
-            return self.cache[time_remaining, valve.label, state.key]
+        if (time, valve.label, state.key) in self.cache:
+            return self.cache[time, valve.label, state.key]
 
         # if time_remaining == 0:
         #     return self.depth_first_search(26, valves["AA"], state, True)
@@ -165,26 +163,26 @@ class Puzzle:
             if state.is_valve_open(tunnel.valve):
                 continue
 
-            new_time_remaining = time_remaining - tunnel.distance - 1
+            new_time = time + tunnel.distance + 1
 
             # we can't reach this valve or opening it has no effect since the remaining time is 0
-            if new_time_remaining <= 0:
+            if new_time >= self.time_to_eruption:
                 continue
 
-            added_pressure_release = tunnel.valve.flow_rate * new_time_remaining
+            added_pressure_release = tunnel.valve.flow_rate * (
+                self.time_to_eruption - new_time
+            )
 
             new_valve_state = ValvesState.from_state(state)
             new_valve_state.open_valve(tunnel.valve)
 
             total_pressure_release = max(
                 total_pressure_release,
-                self.depth_first_search(
-                    new_time_remaining, tunnel.valve, new_valve_state
-                )
+                self.depth_first_search(new_time, tunnel.valve, new_valve_state)
                 + added_pressure_release,
             )
 
-        self.cache[time_remaining, valve.label, state.key] = total_pressure_release
+        self.cache[time, valve.label, state.key] = total_pressure_release
 
         return total_pressure_release
 
