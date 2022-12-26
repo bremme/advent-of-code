@@ -34,6 +34,7 @@ Overall goals
 * type hinting
 * github badgest
 * github actions
+* answer looks like answer in description
 
 
 # TODO
@@ -41,3 +42,7 @@ Overall goals
 * check invalid variant names
 * list variants
 * add day template
+* add animations
+* data download via cli
+* answer upload via cli
+* store answer when right
