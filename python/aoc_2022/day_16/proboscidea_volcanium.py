@@ -1,7 +1,8 @@
 
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
 from typing import Optional
+
 from aoc_2022.utils.utils import parse_positive_integers
 
 
@@ -11,6 +12,12 @@ class Valve:
     flow_rate: int
     open: Optional[bool] = False
     neighbours: Optional[list["Valve"]] = None
+
+
+@dataclass
+class Tunnel:
+    distance: int
+    valve: Valve
 
 
 
@@ -61,11 +68,10 @@ class Puzzle:
                 valve_labels = ", ".join([valve.label for valve in self.open_valves])
                 print(f"Valves {valve_labels} are open, releasing {self.release_pressure_per_minute} pressure.")
 
-
             self.__release_pressure()
 
             # valve is closed and flow rate > 0
-            if self.valve.open is False and self.valve.flow_rate > 0:
+            if self.valve.open is False and self.valve.flow_rate > 5:
                 self.open_valve()
             else:
                 self.move_to_next_valve()
@@ -79,7 +85,6 @@ class Puzzle:
         self.release_pressure_per_minute += self.valve.flow_rate
 
         self.open_valves.append(self.valve)
-
 
     def move_to_next_valve(self):
 
@@ -97,6 +102,17 @@ class Puzzle:
             break
 
         print(f"You move to valve {self.valve.label}")
+
+
+def determine_distances(valves):
+
+
+
+    for from_valve in valves:
+        for to_valve in valves:
+            if from_valve is to_valve:
+                continue
+
 
 
 def solve_part_one(lines: list[str], example: bool):

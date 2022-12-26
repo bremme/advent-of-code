@@ -149,7 +149,7 @@ def solve_part_two(lines):
     def is_end(row, column, map: Map):
         return map.grid[row][column] == 0
 
-    # this time we start at the end and traverse backwards for better peformance
+    # this time we start at the end and traverse backwards for better performance
     distance = find_shortest_path(map, start=map.end, is_end=is_end, direction="down")
 
     return distance
