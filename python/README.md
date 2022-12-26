@@ -37,3 +37,7 @@ Overall goals
 
 
 # TODO
+* auto complete variants
+* check invalid variant names
+* list variants
+* add day template

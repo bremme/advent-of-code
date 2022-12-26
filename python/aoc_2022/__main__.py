@@ -5,6 +5,7 @@ import logging
 import pstats
 import time
 from pathlib import Path
+from re import sub
 from typing import Optional
 
 from aoc_2022.app.puzzle_finder import Puzzle, PuzzleFinder
@@ -16,18 +17,24 @@ logger = logging.getLogger()
 
 
 def _parse_args():
-    parser = argparse.ArgumentParser(prog="Advent of Code")
+    parser = argparse.ArgumentParser(
+        prog="aoc",
+        description="CLI interface to run advent of code puzzles.",
+    )
 
-    parser.add_argument("-d", "--day", type=int, required=True)
-    parser.add_argument("-p", "--part", type=int)
-    parser.add_argument("--variant", default="default")
-    parser.add_argument("-e", "--example", action="store_true")
+    subparsers = parser.add_subparsers()
+    run_parser = subparsers.add_parser("run")
 
-    parser.add_argument("-f", "--file", type=str, dest="input_file")
-    parser.add_argument("-v", "--verbose", action="store_true")
-    parser.add_argument("--debug", action="store_true")
-    parser.add_argument("--profile", action="store_true")
-    parser.add_argument("--assert", action="store_true", dest="assert_answer")
+    run_parser.add_argument("-d", "--day", type=int, required=True)
+    run_parser.add_argument("-p", "--part", type=int)
+    run_parser.add_argument("--variant", default="default")
+    run_parser.add_argument("-e", "--example", action="store_true")
+
+    run_parser.add_argument("-f", "--file", type=str, dest="input_file")
+    run_parser.add_argument("-v", "--verbose", action="store_true")
+    run_parser.add_argument("--debug", action="store_true")
+    run_parser.add_argument("--profile", action="store_true")
+    run_parser.add_argument("--assert", action="store_true", dest="assert_answer")
 
     return parser.parse_args()
 

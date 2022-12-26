@@ -18,6 +18,8 @@ class Puzzle:
     solutions: list[PuzzleSolutionVariant]
 
     def get_solution(self, name):
+        # support kebab-case and snake_case variant names
+        name = name.replace("-", "_")
         for solution in self.solutions:
             if solution.name == name:
                 return solution
