@@ -80,6 +80,10 @@ class Position:
     row: int
     column: int
 
+    def __iter__(self):
+        yield self.row
+        yield self.column
+
 
 class PositionOffset(Position):
     pass
@@ -90,7 +94,30 @@ class Rock:
         self.width = len(grid[0])
         self.height = len(grid)
         self.grid = grid
-        self.position = None
+        self.coordinates = set()
+
+        for row in range(self.height):
+            for column in range(self.width):
+                if self.grid[row][column] == "#":
+                    self.coordinates.add((row, column))
+
+    def move_left(self):
+        self.move((-1, 0))
+
+    def move_right(self):
+        self.move((1, 0))
+
+    def move_down(self):
+        self.move((0, 1))
+
+    def move(self, offset):
+        row_offset, column_offset = offset
+
+        new_coordinates = set()
+        for row, column in self.coordinates:
+            new_coordinates.add((row + row_offset, column + column_offset))
+
+        self.coordinates = new_coordinates
 
     def __str__(self):
         return "\n".join(self.grid)
@@ -105,18 +132,18 @@ class Chamber:
 
         self.grid = [["."] * self.width for _ in range(self.height)]
 
-        self.coordinates = set()
+        self.walls = set()
 
         for row in range(self.height):
             for column in range(self.width):
                 if row == 0:
-                    self.coordinates.add((row, column))
+                    self.walls.add((row, column))
                     continue
                 if column == 0:
-                    self.coordinates.add((row, column))
+                    self.walls.add((row, column))
                     continue
                 if column == self.width - 1:
-                    self.coordinates.add((row, column))
+                    self.walls.add((row, column))
 
         self.rocks = set()
 
@@ -126,32 +153,46 @@ class Chamber:
 
     def add_rock(self, rock: Rock):
         self.rock = rock
-        # place rock in chamber
-        # store position of rock in chamber
-        # should the rock store its position or the chamber ?
-        position = Position(
-            row=self.bottom_row - self.start_offset.row, column=self.start_offset.column
-        )
-        self.rock.position = position
+
+        self.rock.move(self.start_offset)
 
     def push_rock_by_jet(self):
         jet = self.jet_pattern[self._jet_index % len(self.jet_pattern)]
 
         self._jet_index += 1
 
+        previous_coordinates = self.rock.coordinates
+
         if jet == ">":
-            # check if we can move right
-            if (self.rock.position.column + self.rock.width) >= self.width:
-                return
-            self.rock.position.column += 1
+            self.rock.move_right()
 
         elif jet == "<":
-            # check if we can move left
-            if (self.rock.position.column - 1) < 0:
-                return
-            self.rock.position.column -= 1
+            self.rock.move_left()
+
+        # check if we hit something
+        if self.rock.coordinates.intersection(self.walls):
+            self.rock.coordinates = previous_coordinates
+            return
+
+        if self.rock.coordinates.intersection(self.rocks):
+            self.rock.coordinates = previous_coordinates
+            return
 
     def move_rock_down(self):
+
+        previous_coordinates = self.rock.coordinates
+
+        self.rock.move_down()
+
+        # check if we hit something
+        if self.rock.coordinates.intersection(self.walls):
+            self.rock.coordinates = previous_coordinates
+            return
+
+        if self.rock.coordinates.intersection(self.rocks):
+            self.rock.coordinates = previous_coordinates
+            return
+
         # check if we can move down
 
         # ideas
