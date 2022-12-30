@@ -1,8 +1,89 @@
 import logging
 from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Generator
 
 logger = logging.getLogger(__file__)
+
+
+def min_row(coordinates):
+    return min(coordinates, key=lambda coordinate: coordinate[0])[0]
+
+
+def min_column(coordinates):
+    return min(coordinates, key=lambda coordinate: coordinate[0])[0]
+
+
+class Symbol(Enum):
+    DEFAULT_ROCK = "#"
+    DEFAULT_ROCK_FALLING = "@"
+    DEFAULT_EMPTY = "."
+    DEFAULT_WALL = "|"
+    DEFAULT_FLOOR = "-"
+    DEFAULT_CORNER = "+"
+
+
+class SymbolName(Enum):
+    ROCK = auto()
+    ROCK_FALLING = auto()
+    EMPTY = auto()
+    WALL = auto()
+    FLOOR = auto()
+    CORNER = auto()
+
+
+class SymbolSet(Enum):
+    DEFAULT = {
+        SymbolName.ROCK: "#",
+        SymbolName.ROCK_FALLING: "@",
+        SymbolName.EMPTY: ".",
+        SymbolName.WALL: "|",
+        SymbolName.FLOOR: "-",
+        SymbolName.CORNER: "+",
+    }
+    COLORS = {
+        SymbolName.ROCK: "🟩",
+        SymbolName.ROCK_FALLING: "🟦",
+        SymbolName.EMPTY: "⬛",
+        SymbolName.WALL: "🟧",
+        SymbolName.FLOOR: "🟥",
+        SymbolName.CORNER: "⬜️",
+    }
+
+
+# ❌ ⭕️✅ ❎ 🌐 💠  🌀 💤 ⏩ ⏪ ⏫ ⏬ 🔼 🔽 🔘 🔴 🟠 🟡 🟢 🔵 🟣 ⚫️ ⚪️ 🟤 🔺 🔻 🔸 🔹 🔶 🔷 🔳 🔲 ▪️ ▫️ ◾️ ◽️ ◼️ ◻️ 🟥 🟧 🟨 🟩 🟦 🟪 ⬛️ ⬜️ 🟫
+
+
+@dataclass
+class Position:
+    row: int
+    column: int
+
+    def __iter__(self):
+        yield self.row
+        yield self.column
+
+    @staticmethod
+    def from_tuple(position: tuple):
+        return Position(row=position[0], column=position[1])
+
+
+class PositionOffset(Position):
+    pass
+
+
+class Index:
+    def __init__(self, rollover):
+        self._index = -1
+        self._rollover = rollover
+
+    def next(self):
+        self._index += 1
+
+        if self._index == self._rollover:
+            self._index = 0
+
+        return self._index
 
 
 class RockType(Enum):
@@ -11,6 +92,56 @@ class RockType(Enum):
     J = auto()
     I_VERTICAL = auto()
     O = auto()
+
+
+class Rock:
+    def __init__(self, grid: list[list[str]], symbol):
+        self.width = len(grid[0])
+        self.height = len(grid)
+        self.grid = grid
+        self.coordinates: set[tuple[int]] = set()
+        self.previous_coordinates = set()
+
+        # store coordinates
+        for row in range(self.height):
+            for column in range(self.width):
+                if self.grid[row][column] == symbol:
+                    self.coordinates.add((row, column))
+
+        self.previous_coordinates = self.coordinates.copy()
+
+    def undo_move(self):
+        self.coordinates = self.previous_coordinates
+
+    def move_left(self):
+        self.move((0, -1))
+
+    def move_right(self):
+        self.move((0, 1))
+
+    def move_down(self):
+        self.move((1, 0))
+
+    def move(self, offset: tuple):
+        row_offset, column_offset = offset
+
+        new_coordinates = set()
+
+        for row, column in self.coordinates:
+            new_coordinates.add((row + row_offset, column + column_offset))
+
+        self.previous_coordinates = self.coordinates
+        self.coordinates = new_coordinates
+
+    def move_to(self, position: Position):
+        # move top left to given position
+        row_offset = position[0] - min_row(self.coordinates)
+        column_offset = position[1] - min_column(self.coordinates)
+
+        return self.move((row_offset, column_offset))
+
+    def __str__(self):
+        return "\n".join(self.grid)
 
 
 class RockGenerator:
@@ -24,53 +155,62 @@ class RockGenerator:
     ]
     NUM_ROCK_TYPES = 5
 
-    def __init__(self) -> None:
-        self.__rock_type_index = 0
+    def __init__(self, symbol_set) -> None:
+        self._rock_type_index = Index(rollover=len(self.ROCK_TYPE_ORDER))
+        self._rock_grids = {
+            RockType.I_HORIZONTAL: ["####"],
+            RockType.X: [
+                ".#.",
+                "###",
+                ".#.",
+            ],
+            RockType.J: [
+                "..#",
+                "..#",
+                "###",
+            ],
+            RockType.I_VERTICAL: [
+                "#",
+                "#",
+                "#",
+                "#",
+            ],
+            RockType.O: [
+                "##",
+                "##",
+            ],
+        }
+        new_rock_grids = {}
 
-    def rocks(self, number_of_rocks):
+        for rock_type, grid in self._rock_grids.items():
+            new_grid = []
+            for line in grid:
+                new_grid.append(
+                    line.replace("#", symbol_set.value[SymbolName.ROCK]).replace(
+                        ".", symbol_set.value[SymbolName.EMPTY]
+                    )
+                )
+            new_rock_grids[rock_type] = new_grid
+
+        self._rock_grids = new_rock_grids
+
+        self.symbol_set = symbol_set
+
+    def rocks(self, number_of_rocks) -> Generator[Rock, None, None]:
         for _ in range(number_of_rocks):
             yield self.next_rock()
 
-    def next_rock(self):
-        rock_type = self.ROCK_TYPE_ORDER[self.__rock_type_index % self.NUM_ROCK_TYPES]
+    def next_rock(self) -> Rock:
+        rock_type = self.ROCK_TYPE_ORDER[self._rock_type_index.next()]
 
-        self.__rock_type_index += 1
+        return self.generate_rock(rock_type=rock_type)
 
-        if rock_type is RockType.I_HORIZONTAL:
-            grid = ["####"]
-            return Rock(grid)
+    def generate_rock(self, rock_type: RockType) -> Rock:
 
-        if rock_type is RockType.X:
-            grid = [
-                ".#.",
-                "###",
-                ".#.",
-            ]
-            return Rock(grid)
-
-        if rock_type is RockType.J:
-            grid = [
-                "..#",
-                "..#",
-                "###",
-            ]
-            return Rock(grid)
-
-        if rock_type is RockType.I_VERTICAL:
-            grid = [
-                "#",
-                "#",
-                "#",
-                "#",
-            ]
-            return Rock(grid)
-
-        if rock_type is RockType.O:
-            grid = [
-                "##",
-                "##",
-            ]
-            return Rock(grid)
+        return Rock(
+            grid=self._rock_grids[rock_type],
+            symbol=self.symbol_set.value[SymbolName.ROCK],
+        )
 
 
 class Jet:
@@ -78,90 +218,34 @@ class Jet:
     RIGHT = ">"
 
 
-@dataclass
-class Position:
-    row: int
-    column: int
-
-    def __iter__(self):
-        yield self.row
-        yield self.column
-
-
-class PositionOffset(Position):
-    pass
-
-
-class Rock:
-    def __init__(self, grid):
-        self.width = len(grid[0])
-        self.height = len(grid)
-        self.grid = grid
-        self.coordinates = set()
-        self.previous_coordinates = set()
-
-        # store coordinates
-        for row in range(self.height):
-            for column in range(self.width):
-                if self.grid[row][column] == "#":
-                    self.coordinates.add((row, column))
-                    self.previous_coordinates.add((row, column))
-
-    def roll_back(self):
-        self.coordinates = self.previous_coordinates
-
-    def move_left(self):
-        self.move((0, -1))
-
-    def move_right(self):
-        self.move((0, 1))
-
-    def move_down(self):
-        self.move((1, 0))
-
-    def move(self, offset):
-        row_offset, column_offset = offset
-
-        new_coordinates = set()
-        for row, column in self.coordinates:
-            new_coordinates.add((row + row_offset, column + column_offset))
-
-        self.previous_coordinates = self.coordinates
-        self.coordinates = new_coordinates
-
-    def __str__(self):
-        return "\n".join(self.grid)
-
-
 class Chamber:
-    def __init__(
-        self, width, height, jet_pattern, start_offset: PositionOffset
-    ) -> None:
+    def __init__(self, width, height, jet_pattern, symbol_set) -> None:
         self.width = width
         self.height = height
         self.jet_pattern = jet_pattern
+        self.symbol_set = symbol_set
 
-        # self.start_offset = PositionOffset(
-        #     row=self.height - start_offset.row, column=start_offset.column
-        # )
-
-        self.grid = [["."] * self.width for _ in range(self.height)]
+        self.grid = [
+            [symbol_set.value[SymbolName.EMPTY]] * self.width
+            for _ in range(self.height)
+        ]
 
         self.walls = set()
 
+        # draw wall's and floor
         for row in range(self.height):
             for column in range(self.width):
                 if row == (self.height - 1):
                     self.walls.add((row, column))
-                    self.grid[row][column] = "-"
+                    self.grid[row][column] = symbol_set.value[SymbolName.FLOOR]
                     continue
                 if column in [0, (self.width - 1)]:
                     self.walls.add((row, column))
-                    self.grid[row][column] = "|"
+                    self.grid[row][column] = symbol_set.value[SymbolName.WALL]
                     continue
 
-        self.grid[self.height - 1][0] = "+"
-        self.grid[self.height - 1][self.width - 1] = "+"
+        self.grid[self.height - 1][0] = symbol_set.value[SymbolName.CORNER]
+        self.grid[self.height - 1][self.width - 1] = symbol_set.value[SymbolName.CORNER]
 
         self.rocks = set()
 
@@ -170,26 +254,34 @@ class Chamber:
         self.rock = None
         self.bottom_row = self.height - 1
 
+        self.num_rocks = 0
+        self.num_yet_roll_overs = 0
+
     def add_rock(self, rock: Rock):
         self._rock_came_to_rest = False
         self.rock = rock
+        self.num_rocks += 1
 
-        # highest rock or wall + 4
+        # highest rock or wall - 3
         if len(self.rocks) == 0:
             row_offset = (self.height - 1) - 3
         else:
-            row_offset = min(self.rocks, key=lambda coordinate: coordinate[0])[0] - 3
+            row_offset = min_row(self.rocks) - 3
 
         # offset is bottom left
         column_offset = 3
 
-        # TODO this assumes the rock is at position 0,0 top left
-        self.rock.move((row_offset - self.rock.height, column_offset))
+        self.rock.move_to((row_offset - self.rock.height, column_offset))
 
     def push_rock_by_jet(self):
-        jet = self.jet_pattern[self._jet_index % len(self.jet_pattern)]
+        jet = self.jet_pattern[self._jet_index]
 
         self._jet_index += 1
+
+        if self._jet_index == len(self.jet_pattern):
+            self.num_yet_roll_overs += 1
+            self._jet_index = 0
+            # print(f"rollover {self.num_yet_roll_overs}, {self.num_rocks}")
 
         if jet == ">":
             logger.debug("Jet of gas pushed rock to the right:")
@@ -201,29 +293,22 @@ class Chamber:
 
         # check if we hit something
         if self.rock.coordinates.intersection(self.walls):
-            self.rock.roll_back()
+            self.rock.undo_move()
             return
 
         if self.rock.coordinates.intersection(self.rocks):
-            self.rock.roll_back()
+            self.rock.undo_move()
             return
 
     def move_rock_down(self):
 
         self.rock.move_down()
 
-        # check if we hit any other other
-        if self.rock.coordinates.intersection(self.rocks):
-            self.rock.roll_back()
-            self.rocks.update(self.rock.coordinates)
-            self._rock_came_to_rest = True
-            self.rock = None
-            # update start offset
-            return
-
-        # check if we hit the wall (including bottomg)
-        if self.rock.coordinates.intersection(self.walls):
-            self.rock.roll_back()
+        # check if we hit any other other rock or the wall
+        if self.rock.coordinates.intersection(
+            self.rocks
+        ) or self.rock.coordinates.intersection(self.walls):
+            self.rock.undo_move()
             self.rocks.update(self.rock.coordinates)
             self._rock_came_to_rest = True
             self.rock = None
@@ -239,17 +324,15 @@ class Chamber:
         if not logger.isEnabledFor(logging.DEBUG):
             return
 
-        # if we have a falling rock use that as start
+        # if we have a falling rock use the top as the start
         if self.rock:
-            row_start = min(
-                self.rock.coordinates, key=lambda coordinate: coordinate[0]
-            )[0]
+            row_start = min_row(self.rock.coordinates)
         # if we have no falling rock or rocks use the bottom wall as start
         elif len(self.rocks) == 0:
-            row_start = self.height - 4
-        # else use the heighst rock as start
+            row_start = self.height - 1 - 3
+        # else use the highest rock as start
         else:
-            row_start = min(self.rocks, key=lambda coordinate: coordinate[0])[0]
+            row_start = min_row(self.rocks)
 
         # start printing at top rock (falling or resting)
         for row in range(row_start, self.height):
@@ -257,12 +340,13 @@ class Chamber:
             line = [" "] * self.width
 
             for column in range(self.width):
-                # add falling rocks
-                if (row, column) in self.rocks:
-                    line[column] = "#"
                 # add rocks
+                if (row, column) in self.rocks:
+                    line[column] = self.symbol_set.value[SymbolName.ROCK]
+                # add falling rock
                 elif self.rock is not None and (row, column) in self.rock.coordinates:
-                    line[column] = "@"
+                    line[column] = self.symbol_set.value[SymbolName.ROCK_FALLING]
+                # add walls
                 else:
                     line[column] = self.grid[row][column]
 
@@ -276,20 +360,20 @@ class Chamber:
 
 
 def solve_part_one(lines: list[str], example: bool):
+    max_rock_height = 4
     number_of_rocks = 2022
     chamber_width = 7 + 2
-    chamber_height = number_of_rocks * 4
-    start_offset = PositionOffset(row=3 + 1, column=2 + 1)
+    chamber_height = number_of_rocks * max_rock_height
 
     jet_pattern = lines[0]
 
-    generator = RockGenerator()
+    generator = RockGenerator(symbol_set=SymbolSet.COLORS)
 
     chamber = Chamber(
         width=chamber_width,
         height=chamber_height,
         jet_pattern=jet_pattern,
-        start_offset=start_offset,
+        symbol_set=SymbolSet.COLORS,
     )
 
     for i, rock in enumerate(generator.rocks(number_of_rocks)):
@@ -308,16 +392,20 @@ def solve_part_one(lines: list[str], example: bool):
 
             # pushed by jet
             chamber.push_rock_by_jet()
-
             chamber.print(printer=logger.debug)
 
             # fall down
             chamber.move_rock_down()
-
             chamber.print(printer=logger.debug)
 
     return chamber.get_height_tower_of_rocks()
 
 
 def solve_part_two(lines: list[str], example: bool):
-    pass
+    # try to calculate when the pattern repeats
+
+    # it repeats if
+    breakpoint()
+
+    # state
+    # jet index, rock index and top 20 rows
