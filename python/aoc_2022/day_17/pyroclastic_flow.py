@@ -236,7 +236,8 @@ class Chamber:
         return self._rock_came_to_rest
 
     def print(self, printer):
-        return
+        if not logger.isEnabledFor(logging.DEBUG):
+            return
 
         # if we have a falling rock use that as start
         if self.rock:
