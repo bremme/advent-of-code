@@ -14,15 +14,6 @@ def min_column(coordinates):
     return min(coordinates, key=lambda coordinate: coordinate[0])[0]
 
 
-class Symbol(Enum):
-    DEFAULT_ROCK = "#"
-    DEFAULT_ROCK_FALLING = "@"
-    DEFAULT_EMPTY = "."
-    DEFAULT_WALL = "|"
-    DEFAULT_FLOOR = "-"
-    DEFAULT_CORNER = "+"
-
-
 class SymbolName(Enum):
     ROCK = auto()
     ROCK_FALLING = auto()
@@ -32,7 +23,7 @@ class SymbolName(Enum):
     CORNER = auto()
 
 
-class SymbolSet(Enum):
+class SymbolSetSymbols(Enum):
     DEFAULT = {
         SymbolName.ROCK: "#",
         SymbolName.ROCK_FALLING: "@",
@@ -49,6 +40,16 @@ class SymbolSet(Enum):
         SymbolName.FLOOR: "🟥",
         SymbolName.CORNER: "⬜️",
     }
+
+
+class SymbolSet:
+    def __init__(self, symbols: SymbolSetSymbols) -> None:
+        self.rock = symbols.value[SymbolName.ROCK]
+        self.rock_falling = symbols.value[SymbolName.ROCK_FALLING]
+        self.empty = symbols.value[SymbolName.EMPTY]
+        self.wall = symbols.value[SymbolName.WALL]
+        self.floor = symbols.value[SymbolName.FLOOR]
+        self.corner = symbols.value[SymbolName.CORNER]
 
 
 # ❌ ⭕️✅ ❎ 🌐 💠  🌀 💤 ⏩ ⏪ ⏫ ⏬ 🔼 🔽 🔘 🔴 🟠 🟡 🟢 🔵 🟣 ⚫️ ⚪️ 🟤 🔺 🔻 🔸 🔹 🔶 🔷 🔳 🔲 ▪️ ▫️ ◾️ ◽️ ◼️ ◻️ 🟥 🟧 🟨 🟩 🟦 🟪 ⬛️ ⬜️ 🟫
@@ -95,7 +96,7 @@ class RockType(Enum):
 
 
 class Rock:
-    def __init__(self, grid: list[list[str]], symbol):
+    def __init__(self, grid: list[list[str]], symbol: str):
         self.width = len(grid[0])
         self.height = len(grid)
         self.grid = grid
@@ -156,8 +157,11 @@ class RockGenerator:
     NUM_ROCK_TYPES = 5
 
     def __init__(self, symbol_set) -> None:
+        self.symbol_set = symbol_set
+
         self._rock_type_index = Index(rollover=len(self.ROCK_TYPE_ORDER))
-        self._rock_grids = {
+
+        default_rock_grids = {
             RockType.I_HORIZONTAL: ["####"],
             RockType.X: [
                 ".#.",
@@ -180,21 +184,17 @@ class RockGenerator:
                 "##",
             ],
         }
-        new_rock_grids = {}
+        rock_grids = {}
 
-        for rock_type, grid in self._rock_grids.items():
+        for rock_type, grid in default_rock_grids.items():
             new_grid = []
             for line in grid:
                 new_grid.append(
-                    line.replace("#", symbol_set.value[SymbolName.ROCK]).replace(
-                        ".", symbol_set.value[SymbolName.EMPTY]
-                    )
+                    line.replace("#", symbol_set.rock).replace(".", symbol_set.empty)
                 )
-            new_rock_grids[rock_type] = new_grid
+            rock_grids[rock_type] = new_grid
 
-        self._rock_grids = new_rock_grids
-
-        self.symbol_set = symbol_set
+        self._rock_grids = rock_grids
 
     def rocks(self, number_of_rocks) -> Generator[Rock, None, None]:
         for _ in range(number_of_rocks):
@@ -209,7 +209,7 @@ class RockGenerator:
 
         return Rock(
             grid=self._rock_grids[rock_type],
-            symbol=self.symbol_set.value[SymbolName.ROCK],
+            symbol=self.symbol_set.rock,
         )
 
 
@@ -225,10 +225,7 @@ class Chamber:
         self.jet_pattern = jet_pattern
         self.symbol_set = symbol_set
 
-        self.grid = [
-            [symbol_set.value[SymbolName.EMPTY]] * self.width
-            for _ in range(self.height)
-        ]
+        self.grid = [[symbol_set.empty] * self.width for _ in range(self.height)]
 
         self.walls = set()
 
@@ -237,15 +234,15 @@ class Chamber:
             for column in range(self.width):
                 if row == (self.height - 1):
                     self.walls.add((row, column))
-                    self.grid[row][column] = symbol_set.value[SymbolName.FLOOR]
+                    self.grid[row][column] = symbol_set.floor
                     continue
                 if column in [0, (self.width - 1)]:
                     self.walls.add((row, column))
-                    self.grid[row][column] = symbol_set.value[SymbolName.WALL]
+                    self.grid[row][column] = symbol_set.wall
                     continue
 
-        self.grid[self.height - 1][0] = symbol_set.value[SymbolName.CORNER]
-        self.grid[self.height - 1][self.width - 1] = symbol_set.value[SymbolName.CORNER]
+        self.grid[self.height - 1][0] = symbol_set.corner
+        self.grid[self.height - 1][self.width - 1] = symbol_set.corner
 
         self.rocks = set()
 
@@ -342,10 +339,10 @@ class Chamber:
             for column in range(self.width):
                 # add rocks
                 if (row, column) in self.rocks:
-                    line[column] = self.symbol_set.value[SymbolName.ROCK]
+                    line[column] = self.symbol_set.rock
                 # add falling rock
                 elif self.rock is not None and (row, column) in self.rock.coordinates:
-                    line[column] = self.symbol_set.value[SymbolName.ROCK_FALLING]
+                    line[column] = self.symbol_set.rock_falling
                 # add walls
                 else:
                     line[column] = self.grid[row][column]
@@ -367,13 +364,15 @@ def solve_part_one(lines: list[str], example: bool):
 
     jet_pattern = lines[0]
 
-    generator = RockGenerator(symbol_set=SymbolSet.COLORS)
+    symbols_set = SymbolSet(symbols=SymbolSetSymbols.COLORS)
+
+    generator = RockGenerator(symbol_set=symbols_set)
 
     chamber = Chamber(
         width=chamber_width,
         height=chamber_height,
         jet_pattern=jet_pattern,
-        symbol_set=SymbolSet.COLORS,
+        symbol_set=symbols_set,
     )
 
     for i, rock in enumerate(generator.rocks(number_of_rocks)):
