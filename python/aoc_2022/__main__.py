@@ -9,14 +9,15 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="aoc",
         description="CLI interface to run advent of code puzzles.",
     )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Print more (debugging) output."
-    )
 
     subparsers = parser.add_subparsers(dest="cmd")
 
     run_parser = subparsers.add_parser(
         "run", help="Run a puzzle solution. see `aoc run --help` for more details."
+    )
+
+    run_parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Print more (debugging) output."
     )
 
     run_parser.add_argument(
@@ -54,6 +55,17 @@ def _build_parser() -> argparse.ArgumentParser:
     )
 
     return parser
+
+
+def _add_run_parser():
+    pass
+
+
+def _add_create_parser(subparsers: argparse.ArgumentParser):
+    subparsers.add_parser()
+    run_parser = subparsers.add_parser(
+        "create", help="Run a puzzle solution. see `aoc run --help` for more details."
+    )
 
 
 def _setup_logger(verbose):
