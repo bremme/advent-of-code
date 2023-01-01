@@ -1,7 +1,7 @@
 def parse(lines: list[str]) -> list[list[int]]:
     cubes = []
     for line in lines:
-        cube = tuple(map(int, line.split(",")))
+        cube = {k: v for k, v in zip("xyz", map(int, line.split(",")))}
         cubes.append(cube)
     return cubes
 
@@ -29,8 +29,8 @@ def solve_one(cubes):
 
 
 def cube_is_connected(cube, other_cube):
-    x1, y1, z1 = cube
-    x2, y2, z2 = other_cube
+    x1, y1, z1 = cube.values()
+    x2, y2, z2 = other_cube.values()
 
     dx = abs(x1 - x2)
     dy = abs(y1 - y2)
@@ -42,80 +42,45 @@ def cube_is_connected(cube, other_cube):
     return False
 
 
-def solve_two(cubes):
-    # cubes_x = sorted(cubes, key=lambda c: c[0])
-    # cubes_y = sorted(cubes, key=lambda c: c[1])
-    # cubes_z = sorted(cubes, key=lambda c: c[2])
+def calculate_surface_are(cubes):
 
-    cubes_x = {}
-    cubes_y = {}
-    cubes_z = {}
+    # build dictionairy with list of cubes for all x, y, z coordinates
+    cube_coordinates = {"x": {}, "y": {}, "z": {}}
 
     for cube in cubes:
-        x, y, z = cube
+        x, y, z = cube.values()
 
-        if x not in cubes_x:
-            cubes_x[x] = []
-        if y not in cubes_y:
-            cubes_y[y] = []
-        if z not in cubes_z:
-            cubes_z[z] = []
+        if x not in cube_coordinates["x"]:
+            cube_coordinates["x"][x] = []
+        if y not in cube_coordinates["y"]:
+            cube_coordinates["y"][y] = []
+        if z not in cube_coordinates["z"]:
+            cube_coordinates["z"][z] = []
 
-        cubes_x[x].append(cube)
-        cubes_y[y].append(cube)
-        cubes_z[z].append(cube)
+        cube_coordinates["x"][x].append(cube)
+        cube_coordinates["y"][y].append(cube)
+        cube_coordinates["z"][z].append(cube)
 
-    # dict with x coordinates and all cubes with those
-    # dict with y coordiantes and all cubes with those
-
+    # start with maximum surface area
     surface_area = len(cubes) * 6
 
-    data = {0: cubes_x, 1: cubes_y, 2: cubes_z}
-
     for cube in cubes:
-        x, y, z = cube
 
-        for direction in [0, 1, 2]:
+        # loop over directions x, y, z
+        for direction in ["x", "y", "z"]:
+            # look both in the negative and positive direction (e.g. left and right)
             for delta in [-1, 1]:
-                for other_cube in data[direction].get(cube[direction] + delta, []):
+
+                other_cubes = cube_coordinates[direction].get(
+                    cube[direction] + delta, []
+                )
+
+                for other_cube in other_cubes:
+                    # if we found a connected cube in this direction we break out of
+                    # the loop
                     if cube_is_connected(cube, other_cube):
                         surface_area -= 1
                         break
-
-        continue
-
-        # look for touching cubes in x
-        for cube_x in cubes_x.get(x - 1, []) + cubes_x.get(x + 1, []):
-            if cube_is_connected(cube, cube_x):
-                surface_area -= 1
-
-        # if (x + 1) in cubes_x:
-        #     for cube_x in cubes_x[x + 1]:
-        #         if cube_is_connected(cube, cube_x):
-        #             surface_area -= 1
-
-        # look for touching cubes in y
-        if (y - 1) in cubes_y:
-            for cube_y in cubes_y[y - 1]:
-                if cube_is_connected(cube, cube_y):
-                    surface_area -= 1
-
-        if (y + 1) in cubes_y:
-            for cube_y in cubes_y[y + 1]:
-                if cube_is_connected(cube, cube_y):
-                    surface_area -= 1
-
-        # look for touching cubes in z
-        if (z - 1) in cubes_z:
-            for cube_z in cubes_z[z - 1]:
-                if cube_is_connected(cube, cube_z):
-                    surface_area -= 1
-
-        if (z + 1) in cubes_z:
-            for cube_z in cubes_z[z + 1]:
-                if cube_is_connected(cube, cube_z):
-                    surface_area -= 1
-
     return surface_area
 
 
@@ -129,7 +94,7 @@ def solve_part_one(lines: list[str], example: bool):
     # a cube touches if there is all coordinates are the same except one
     # return solve_one(cubes)
 
-    return solve_two(cubes)
+    return calculate_surface_are(cubes)
 
 
 def solve_part_two(lines: list[str], example: bool):
