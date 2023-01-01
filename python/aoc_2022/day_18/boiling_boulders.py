@@ -112,9 +112,3 @@ def solve_part_two(lines: list[str], example: bool):
     # top:
 
     # find air bubbles
-    for cube in cubes:
-
-
-
-
-    return answer
