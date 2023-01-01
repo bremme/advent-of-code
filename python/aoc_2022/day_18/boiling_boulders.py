@@ -70,18 +70,29 @@ def solve_two(cubes):
 
     surface_area = len(cubes) * 6
 
+    data = {0: cubes_x, 1: cubes_y, 2: cubes_z}
+
     for cube in cubes:
         x, y, z = cube
-        # look for touching cubes in x
-        if (x - 1) in cubes_x:
-            for cube_x in cubes_x[x - 1]:
-                if cube_is_connected(cube, cube_x):
-                    surface_area -= 1
 
-        if (x + 1) in cubes_x:
-            for cube_x in cubes_x[x + 1]:
-                if cube_is_connected(cube, cube_x):
-                    surface_area -= 1
+        for direction in [0, 1, 2]:
+            for delta in [-1, 1]:
+                for other_cube in data[direction].get(cube[direction] + delta, []):
+                    if cube_is_connected(cube, other_cube):
+                        surface_area -= 1
+                        break
+
+        continue
+
+        # look for touching cubes in x
+        for cube_x in cubes_x.get(x - 1, []) + cubes_x.get(x + 1, []):
+            if cube_is_connected(cube, cube_x):
+                surface_area -= 1
+
+        # if (x + 1) in cubes_x:
+        #     for cube_x in cubes_x[x + 1]:
+        #         if cube_is_connected(cube, cube_x):
+        #             surface_area -= 1
 
         # look for touching cubes in y
         if (y - 1) in cubes_y:
