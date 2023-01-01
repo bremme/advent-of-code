@@ -1,6 +1,7 @@
 import argparse
 import logging
 
+from aoc_2022.app.creator import Creater
 from aoc_2022.app.runner import Runner
 
 
@@ -12,6 +13,14 @@ def _build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="cmd")
 
+    _add_run_parser(subparsers)
+
+    _add_create_parser(subparsers)
+
+    return parser
+
+
+def _add_run_parser(subparsers):
     run_parser = subparsers.add_parser(
         "run", help="Run a puzzle solution. see `aoc run --help` for more details."
     )
@@ -54,29 +63,15 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Check the answer(s).",
     )
 
-    return parser
 
-
-def _add_run_parser():
-    pass
-
-
-def _add_create_parser(subparsers: argparse.ArgumentParser):
-    subparsers.add_parser()
-    run_parser = subparsers.add_parser(
-        "create", help="Run a puzzle solution. see `aoc run --help` for more details."
+def _add_create_parser(subparsers):
+    create_parser = subparsers.add_parser(
+        "create",
+        help="Create a new puzzle solution. see `aoc create --help` for more details.",
     )
-
-
-def _setup_logger(verbose):
-    # setup logger
-    FORMAT = "%(message)s"
-    logging.basicConfig(format=FORMAT)
-
-    if verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-    else:
-        logging.getLogger().setLevel(logging.INFO)
+    create_parser.add_argument(
+        "-d", "--day", type=int, required=True, help="The puzzle day."
+    )
 
 
 def main():
@@ -85,10 +80,11 @@ def main():
 
     args = parser.parse_args()
 
-    _setup_logger(args.verbose)
-
     if args.cmd == "run":
         Runner(args).run()
+
+    if args.cmd == "create":
+        Creater(args).create()
 
     if args.cmd is None:
         parser.print_help()

@@ -56,6 +56,15 @@ class Runner:
         else:
             self.lines = read_puzzle_input(args.day, 2022, args.example)
 
+        # setup logger
+        FORMAT = "%(message)s"
+        logging.basicConfig(format=FORMAT)
+
+        if args.verbose:
+            logging.getLogger().setLevel(logging.DEBUG)
+        else:
+            logging.getLogger().setLevel(logging.INFO)
+
     def run(self):
 
         if self.debug:
