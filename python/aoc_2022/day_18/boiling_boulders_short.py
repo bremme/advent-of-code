@@ -1,36 +1,14 @@
 def parse(lines: list[str]) -> list[list[int]]:
     cubes = []
     for line in lines:
-        cube = {k: v for k, v in zip("xyz", map(int, line.split(",")))}
+        cube = tuple(map(int, line.split(",")))
         cubes.append(cube)
     return cubes
 
 
-def solve_one(cubes):
-
-    surface_area = len(cubes) * 6
-
-    for i, cube in enumerate(cubes):
-        for j, other_cube in enumerate(cubes):
-            if cube == other_cube:
-                continue
-            #
-            x1, y1, z1 = cube
-            x2, y2, z2 = other_cube
-
-            dx = abs(x1 - x2)
-            dy = abs(y1 - y2)
-            dz = abs(z1 - z2)
-
-            if sum([dx, dy, dz]) == 1:
-                surface_area -= 1
-
-    return surface_area
-
-
 def cube_is_connected(cube, other_cube):
-    x1, y1, z1 = cube.values()
-    x2, y2, z2 = other_cube.values()
+    x1, y1, z1 = cube
+    x2, y2, z2 = other_cube
 
     dx = abs(x1 - x2)
     dy = abs(y1 - y2)
@@ -42,7 +20,15 @@ def cube_is_connected(cube, other_cube):
     return False
 
 
-def calculate_surface_are(cubes):
+def calculate_surface_area(cubes):
+    directions = [
+        (-1, 0, 0),
+        (1,0,0),
+        (0,-1,0),
+        (0,1,0),
+        (0,0,-1),
+        (0,0,1)
+    ]
 
     # build dictionairy with list of cubes for all x, y, z coordinates
     cube_coordinates = {"x": {}, "y": {}, "z": {}}
@@ -94,7 +80,7 @@ def solve_part_one(lines: list[str], example: bool):
     # a cube touches if there is all coordinates are the same except one
     # return solve_one(cubes)
 
-    return calculate_surface_are(cubes)
+    return calculate_surface_area(cubes)
 
 
 def solve_part_two(lines: list[str], example: bool):
