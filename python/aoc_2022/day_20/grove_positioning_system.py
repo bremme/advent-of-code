@@ -206,26 +206,26 @@ def solve_part_one(lines: list[str], example: bool) -> int:
     nodes = parse(lines)
     num_nodes = len(nodes)
 
+    zero_node = None
+
     for i, node in enumerate(nodes):
         # print_values(node)
         move_node(node, node.value, num_nodes)
         # if i == (num_nodes - 1):
         #     print_values(node)
+        if node.value == 0:
+            zero_node = node
 
     # print_values(node)
 
-    # find node with value 0
-    for node in nodes:
-        if node.value != 0:
-            continue
+    v1 = get_value_at_relative_position(zero_node, 1000, num_nodes)
+    v2 = get_value_at_relative_position(zero_node, 2000, num_nodes)
+    v3 = get_value_at_relative_position(zero_node, 3000, num_nodes)
 
-        v1 = get_value_at_relative_position(node, 1000, len(nodes))
-        v2 = get_value_at_relative_position(node, 2000, len(nodes))
-        v3 = get_value_at_relative_position(node, 3000, len(nodes))
-        print(v1, v2, v3)
-        # example 4, -3, 2
-        # 6439 853 7596
-        return v1 + v2 + v3
+    print(v1, v2, v3)
+    # example 4, -3, 2
+    # 6439 853 7596
+    return v1 + v2 + v3
 
 
 def solve_part_two(lines: list[str], example: bool) -> int:
@@ -233,11 +233,15 @@ def solve_part_two(lines: list[str], example: bool) -> int:
 
     nodes = parse(lines)
     num_nodes = len(nodes)
+    zero_node = None
 
     # apply decryption key
     for i, node in enumerate(nodes):
         print(f"apply descyption key for node {i}")
         node.value *= descryption_key
+
+        if node.value == 0:
+            zero_node = node
 
     # play rounds
     for round in range(1, 10 + 1):
@@ -252,17 +256,10 @@ def solve_part_two(lines: list[str], example: bool) -> int:
 
         # breakpoint()
         # print_values(nodes[0])
+    v1 = get_value_at_relative_position(zero_node, 1000, len(nodes))
+    v2 = get_value_at_relative_position(zero_node, 2000, len(nodes))
+    v3 = get_value_at_relative_position(zero_node, 3000, len(nodes))
 
-    # find node with value 0
-    print("find node with 0 value")
-    for node in nodes:
-        if node.value != 0:
-            continue
-
-        v1 = get_value_at_relative_position(node, 1000, len(nodes))
-        v2 = get_value_at_relative_position(node, 2000, len(nodes))
-        v3 = get_value_at_relative_position(node, 3000, len(nodes))
-
-        print(v1, v2, v3)
-        # 4, -3, 2
-        return v1 + v2 + v3
+    print(v1, v2, v3)
+    # 4, -3, 2
+    return v1 + v2 + v3
