@@ -152,6 +152,7 @@ def move_node(node, places, num_nodes):
 
     extra = 1 if places > 0 else -1
     extra *= 1 if (abs(places) // num_nodes) else 0
+    extra = 0
 
     # move to the right
     if places > 0:
