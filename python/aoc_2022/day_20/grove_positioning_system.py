@@ -147,21 +147,19 @@ def move_node(node, places, num_nodes):
     if places == 0:
         return
 
-    # remove node
-    unlink_node(node)
-
-    extra = 1 if places > 0 else -1
-    extra *= 1 if (abs(places) // num_nodes) else 0
-    extra = 0
-
     # move to the right
     if places > 0:
 
         insert_after_node = node
 
-        for _ in range((places + extra) % num_nodes):
+        for _ in range(places % (num_nodes - 1)):
             insert_after_node = insert_after_node.right
 
+        if insert_after_node == node:
+            return
+
+        # remove node
+        unlink_node(node)
         # connect node to the right of insert_after_node
         insert_node_to_the_right(insert_after_node, node)
 
@@ -170,9 +168,14 @@ def move_node(node, places, num_nodes):
     # move to the left
     insert_before_node = node
 
-    for _ in range(abs(places + extra) % num_nodes):
+    for _ in range(-places % (num_nodes - 1)):
         insert_before_node = insert_before_node.left
 
+    if insert_before_node == node:
+        return
+
+    # remove node
+    unlink_node(node)
     # connect node to the left of insert_before_node
     insert_node_to_the_left(insert_before_node, node)
 
@@ -219,6 +222,16 @@ def solve_part_one(lines: list[str], example: bool) -> int:
 
     # print_values(node)
 
+    node = zero_node
+    answer = 0
+
+    for _ in range(3):
+        for _ in range(1000):
+            node = node.right
+        answer += node.value
+
+    return answer
+
     v1 = get_value_at_relative_position(zero_node, 1000, num_nodes)
     v2 = get_value_at_relative_position(zero_node, 2000, num_nodes)
     v3 = get_value_at_relative_position(zero_node, 3000, num_nodes)
@@ -248,15 +261,26 @@ def solve_part_two(lines: list[str], example: bool) -> int:
     for round in range(1, 10 + 1):
 
         for i, node in enumerate(nodes):
-            print_values(node, num_nodes)
+            # print_values(node, num_nodes)
             move_node(node, node.value, num_nodes)
-            if i == (num_nodes - 1):
-                print_values(node, num_nodes)
+            # if i == (num_nodes - 1):
+            #     print_values(node, num_nodes)
 
         print(f"After {round} rounds of mixing:")
 
         # breakpoint()
         # print_values(nodes[0])
+
+    node = zero_node
+    answer = 0
+
+    for _ in range(3):
+        for _ in range(1000):
+            node = node.right
+        answer += node.value
+
+    return answer
+
     v1 = get_value_at_relative_position(zero_node, 1000, len(nodes))
     v2 = get_value_at_relative_position(zero_node, 2000, len(nodes))
     v3 = get_value_at_relative_position(zero_node, 3000, len(nodes))
