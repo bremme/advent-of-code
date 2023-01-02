@@ -29,26 +29,15 @@ def parse(lines: list[str]):
     return nodes
 
 
-def insert_node_to_the_right(insert_after_node, node):
-    left_node = insert_after_node
-    right_node = insert_after_node.right
+def insert_node_to_the_right(left_node, node):
+
+    right_node = left_node.right
 
     left_node.right = node
     node.left = left_node
 
     right_node.left = node
     node.right = right_node
-
-
-def insert_node_to_the_left(insert_before_node, node):
-    right_node = insert_before_node
-    left_node = insert_before_node.left
-
-    right_node.left = node
-    node.right = right_node
-
-    left_node.right = node
-    node.left = left_node
 
 
 def unlink_node(node):
@@ -64,37 +53,28 @@ def move_node(node, places, num_nodes):
     if places == 0:
         return
 
+    insert_after_node = node
+
     # move to the right
     if places > 0:
-
-        insert_after_node = node
 
         for _ in range(places % (num_nodes - 1)):
             insert_after_node = insert_after_node.right
 
-        if insert_after_node == node:
-            return
-
-        # remove node
-        unlink_node(node)
-        # connect node to the right of insert_after_node
-        insert_node_to_the_right(insert_after_node, node)
-
-        return
-
     # move to the left
-    insert_before_node = node
+    else:
+        # we move one extra position to be able to still insert the node to the right
+        for _ in range((abs(places) % (num_nodes - 1)) + 1):
+            insert_after_node = insert_after_node.left
 
-    for _ in range(-places % (num_nodes - 1)):
-        insert_before_node = insert_before_node.left
-
-    if insert_before_node == node:
+    # do nothing if the found node is equal to our initial node
+    if insert_after_node == node:
         return
 
     # remove node
     unlink_node(node)
-    # connect node to the left of insert_before_node
-    insert_node_to_the_left(insert_before_node, node)
+    # connect node to the right of insert_after_node
+    insert_node_to_the_right(insert_after_node, node)
 
 
 def print_values(node, num_nodes):
