@@ -176,5 +176,24 @@ def solve_part_one(lines: list[str], example: bool) -> int:
 
 
 def solve_part_two(lines: list[str], example: bool) -> int:
-    answer = 0
+    blueprints = parse(lines)
+
+    robots = {"ore": 1, "clay": 0, "obsidian": 0, "geode": 0}
+    resources = {"ore": 0, "clay": 0, "obsidian": 0, "geode": 0}
+
+    answer = 1
+
+    for id_ in range(1, 3 + 1):
+        blueprint = blueprints.get(id_)
+        if not blueprint:
+            break
+        robot_costs = blueprint["robot_costs"]
+        max_spend_rates = blueprint["max_spend_rates"]
+        solution, calls = solve_dfs(
+            32, robots, resources, robot_costs, max_spend_rates, {}, {}
+        )
+
+        answer *= solution
+        print(f"number of geodes {id_} = {solution} (calls = {calls})")
+
     return answer
