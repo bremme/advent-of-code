@@ -29,7 +29,7 @@ def parse(lines: list[str]):
     return nodes
 
 
-def insert_node_to_the_right(left_node, node):
+def insert_after_node(left_node, node):
 
     right_node = left_node.right
 
@@ -53,28 +53,28 @@ def move_node(node, places, num_nodes):
     if places == 0:
         return
 
-    insert_after_node = node
+    other_node = node
 
     # move to the right
     if places > 0:
 
         for _ in range(places % (num_nodes - 1)):
-            insert_after_node = insert_after_node.right
+            other_node = other_node.right
 
     # move to the left
     else:
         # we move one extra position to be able to still insert the node to the right
         for _ in range((abs(places) % (num_nodes - 1)) + 1):
-            insert_after_node = insert_after_node.left
+            other_node = other_node.left
 
     # do nothing if the found node is equal to our initial node
-    if insert_after_node == node:
+    if other_node == node:
         return
 
     # remove node
     unlink_node(node)
     # connect node to the right of insert_after_node
-    insert_node_to_the_right(insert_after_node, node)
+    insert_after_node(other_node, node)
 
 
 def print_values(node, num_nodes):
