@@ -1,6 +1,4 @@
 from dataclasses import dataclass
-from multiprocessing import current_process
-from turtle import st
 from typing import Optional
 
 
@@ -14,102 +12,21 @@ class Number:
 
 def parse(lines: list[str]):
 
-    previous_node = None
-    # first_node = None
     nodes: list[Number] = []
 
-    for i, line in enumerate(lines):
-        node = Number(value=int(line), id=i, left=previous_node)
+    for id_, line in enumerate(lines):
+        node = Number(value=int(line), id=id_)
+
         nodes.append(node)
 
-        if i == 0:
-            first_node = node
-            previous_node = node
-            continue
+    num_nodes = len(nodes)
 
-        previous_node.right = node
-
-        previous_node = node
-
-        if i == len(lines) - 1:
-            first_node.left = node
-            node.right = first_node
+    # link nodes
+    for i, node in enumerate(nodes):
+        node.right = nodes[(i + 1) % num_nodes]
+        node.left = nodes[(i - 1) % num_nodes]
 
     return nodes
-
-
-def get_linked_node(node, places, direction, num_nodes):
-    linked_node = node
-
-    for _ in range(abs(places)):
-        linked_node = getattr(linked_node, direction)
-
-    return linked_node
-
-
-def get_linked_node2(node, places, direction, num_nodes):
-    linked_node = node
-
-    extra = -1 if direction == "left" else 1
-    extra *= abs(places) // num_nodes
-
-    # print(direction, extra, places // num_nodes)
-    # print(abs(places) // num_nodes)
-
-    for _ in range(abs(places + extra) % num_nodes):
-        linked_node = getattr(linked_node, direction)
-
-    return linked_node
-
-
-def move_node2(node, places, num_nodes):
-
-    if places == 0:
-        return
-
-    direction = "right" if places > 0 else "left"
-
-    # remove node
-    left_node = node.left
-    right_node = node.right
-
-    left_node.right = right_node
-    right_node.left = left_node
-
-    # insert_at_node = get_linked_node(node, places, direction, num_nodes)
-    # extra = -1 if direction == "left" else 1
-    # extra *= abs(places) // num_nodes
-    # print(extra)
-
-    insert_at_node = get_linked_node2(node, places, direction, num_nodes)
-
-    # print(direction, abs(places) // num_nodes, places // num_nodes)
-
-    # if insert_at_node != get_linked_node(node, places, direction, num_nodes):
-    #     breakpoint()
-
-    # insert node
-    if direction == "right":
-        # print("right")
-        left_node = insert_at_node
-        right_node = insert_at_node.right
-
-        left_node.right = node
-        node.left = left_node
-
-        right_node.left = node
-        node.right = right_node
-
-    if direction == "left":
-        # print("left")
-        right_node = insert_at_node
-        left_node = insert_at_node.left
-
-        right_node.left = node
-        node.right = right_node
-
-        left_node.right = node
-        node.left = left_node
 
 
 def insert_node_to_the_right(insert_after_node, node):
@@ -213,33 +130,22 @@ def solve_part_one(lines: list[str], example: bool) -> int:
     zero_node = None
 
     for i, node in enumerate(nodes):
-        # print_values(node)
+
         move_node(node, node.value, num_nodes)
-        # if i == (num_nodes - 1):
-        #     print_values(node)
+
         if node.value == 0:
             zero_node = node
 
-    # print_values(node)
+    answers = []
 
-    node = zero_node
-    answer = 0
+    for relative_position in [1000, 2000, 3000]:
+        answers.append(
+            get_value_at_relative_position(zero_node, relative_position, num_nodes)
+        )
 
-    for _ in range(3):
-        for _ in range(1000):
-            node = node.right
-        answer += node.value
-
-    return answer
-
-    v1 = get_value_at_relative_position(zero_node, 1000, num_nodes)
-    v2 = get_value_at_relative_position(zero_node, 2000, num_nodes)
-    v3 = get_value_at_relative_position(zero_node, 3000, num_nodes)
-
-    print(v1, v2, v3)
-    # example 4, -3, 2
+    # 4, -3, 2 (example)
     # 6439 853 7596
-    return v1 + v2 + v3
+    return sum(answers)
 
 
 def solve_part_two(lines: list[str], example: bool) -> int:
@@ -251,7 +157,6 @@ def solve_part_two(lines: list[str], example: bool) -> int:
 
     # apply decryption key
     for i, node in enumerate(nodes):
-        print(f"apply descyption key for node {i}")
         node.value *= descryption_key
 
         if node.value == 0:
@@ -259,32 +164,16 @@ def solve_part_two(lines: list[str], example: bool) -> int:
 
     # play rounds
     for round in range(1, 10 + 1):
-
         for i, node in enumerate(nodes):
-            # print_values(node, num_nodes)
             move_node(node, node.value, num_nodes)
-            # if i == (num_nodes - 1):
-            #     print_values(node, num_nodes)
 
-        print(f"After {round} rounds of mixing:")
+    answers = []
 
-        # breakpoint()
-        # print_values(nodes[0])
+    for relative_position in [1000, 2000, 3000]:
+        answers.append(
+            get_value_at_relative_position(zero_node, relative_position, num_nodes)
+        )
 
-    node = zero_node
-    answer = 0
-
-    for _ in range(3):
-        for _ in range(1000):
-            node = node.right
-        answer += node.value
-
-    return answer
-
-    v1 = get_value_at_relative_position(zero_node, 1000, len(nodes))
-    v2 = get_value_at_relative_position(zero_node, 2000, len(nodes))
-    v3 = get_value_at_relative_position(zero_node, 3000, len(nodes))
-
-    print(v1, v2, v3)
-    # 4, -3, 2
-    return v1 + v2 + v3
+    # 4, -3, 2 (example)
+    # 6187555702472 3134357308886 -5561820465509
+    return sum(answers)
