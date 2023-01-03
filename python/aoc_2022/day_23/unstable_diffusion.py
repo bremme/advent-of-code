@@ -10,10 +10,11 @@ NW = (-1, -1)
 
 def parse(lines: list[str]):
     elves = []
+    elve = "#"
 
     for row, line in enumerate(lines):
         for column, char in enumerate(line):
-            if char == "#":
+            if char == elve:
                 elves.append((row, column))
 
     return elves
@@ -82,9 +83,10 @@ def move_elves(elves, rounds=None, part_two=False):
 
         # first halve, detemine proposed steps
         for elve_id, elve in enumerate(elves):
-            # if no other elves are around, do nothing
+
             elves_around = are_other_elves_around(elve, elve_positions)
 
+            # if no other elves are around, do nothing
             if not any(elves_around.values()):
                 continue
 
@@ -96,7 +98,7 @@ def move_elves(elves, rounds=None, part_two=False):
                 for direction in directions:
                     if elves_around[direction] is True:
                         break
-                # no elves in any direction
+                # no elves in any direction (did not brake)
                 else:
                     proposed_position = (
                         elve[0] + directions[0][0],
