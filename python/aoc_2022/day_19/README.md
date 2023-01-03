@@ -1,20 +1,3 @@
-Breadth-first search (BFS):
-https://en.wikipedia.org/wiki/Breadth-first_search
-
-
-Depth-first search (DFS)
-https://en.wikipedia.org/wiki/Depth-first_search
-
-
-https://www.geeksforgeeks.org/difference-between-bfs-and-dfs/
-
-BFS uses a queue with first in first out. slower?
-vertex bases technique
-
-DFS uses a stack
-edge based technique
-
-
 # 0xdf
 https://www.youtube.com/watch?v=iIqIc5T2XpM
 https://gitlab.com/0xdf/aoc2022/-/blob/main/day19/day19.py

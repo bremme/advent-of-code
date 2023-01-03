@@ -64,6 +64,17 @@ class Position:
         yield self.row
         yield self.column
 
+    def __getitem__(self, index):
+        if index == 0:
+            return self.row
+        if index == 1:
+            return self.column
+
+        raise IndexError("Index out of range")
+
+    def __len__(self):
+        return 2
+
     @staticmethod
     def from_tuple(position: tuple):
         return Position(row=position[0], column=position[1])
@@ -100,7 +111,7 @@ class Rock:
         self.width = len(grid[0])
         self.height = len(grid)
         self.grid = grid
-        self.coordinates: set[tuple[int]] = set()
+        self.coordinates: set[tuple[int, int]] = set()
         self.previous_coordinates = set()
 
         # store coordinates
