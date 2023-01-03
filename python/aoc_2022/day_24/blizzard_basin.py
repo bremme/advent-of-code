@@ -16,8 +16,11 @@
 #     list of blizzards, position,
 
 
+from asyncio import start_server
+from collections import deque
 from dataclasses import dataclass
 from heapq import heappop, heappush
+from turtle import st
 
 N = (-1, 0)
 E = (0, 1)
@@ -41,8 +44,8 @@ def parse(lines: list[str]):
                 continue
             valley[char].add((row, column))
 
-    max_row = len(lines)
-    max_column = len(lines[0])
+    max_row = len(lines) - 1
+    max_column = len(lines[0]) - 1
 
     return valley, (max_row, max_column)
 
@@ -57,6 +60,20 @@ class Valley:
         self.valley_state = {0: initial_state}
         self.max_row = max_row
         self.max_column = max_column
+
+    def print_state(self, state):
+
+        for row in range(self.max_row + 1):
+            line = []
+            for column in range(self.max_column + 1):
+                for symbol in "^>v<#":
+                    if (row, column) in state[symbol]:
+                        line.append(symbol)
+                        break
+                else:
+                    line.append(".")
+            print("".join(line))
+        print()
 
     def state_at_time(self, time):
         if time in self.valley_state:
@@ -84,6 +101,8 @@ class Valley:
 
         self.valley_state[time] = next_state
 
+        # print(f"start at {time}:")
+        # self.print_state(next_state)
         return next_state
 
     def _move_up(self, coordinates):
@@ -123,11 +142,10 @@ class Valley:
 
 
 def determine_next_positions(position, valley_state, start):
-
-    for move in [N, E, S, W]:
+    # try moving N, E, S, W or stay
+    for move in [N, E, S, W, (0, 0)]:
         posible_next_position = position[0] + move[0], position[1] + move[1]
-        if posible_next_position == start:
-            continue
+
         if posible_next_position in valley_state["^"]:
             continue
         if posible_next_position in valley_state[">"]:
@@ -138,9 +156,45 @@ def determine_next_positions(position, valley_state, start):
             continue
         if posible_next_position in valley_state["#"]:
             continue
-        if posible_next_position[0] < 0:
+        # we can't move up from the start position
+        if posible_next_position == (start[0] - 1, start[1]):
             continue
+        # we can't move down from the end position
+
         yield posible_next_position
+
+
+def solve_bfs(start, end, valley: Valley):
+
+    visited = set()
+
+    queue: deque = deque()
+
+    queue.append((0, start[0], start[1]))
+
+    print(f"start = {start}, end = {end}")
+
+    while queue:
+
+        time, row, column = queue.popleft()
+
+        if (time, row, column) in visited:
+            continue
+
+        visited.add((time, row, column))
+
+        # get next valley state
+        next_valley_state = valley.state_at_time(time + 1)
+
+        # determine where to go next
+        for new_row, new_column in determine_next_positions(
+            (row, column), next_valley_state, start
+        ):
+            # we found the exit
+            if (new_row, new_column) == end:
+                return time + 1
+
+            queue.append((time + 1, new_row, new_column))
 
 
 def solve_dijkstra(start, end, valley: Valley):
@@ -149,38 +203,30 @@ def solve_dijkstra(start, end, valley: Valley):
 
     visited = set()
 
-    heappush(heap, (0, 0, start[0], start[1]))
+    heappush(heap, (0, start[0], start[1]))
 
     print(f"start = {start}, end = {end}")
 
-    while True:
-        time, steps, row, column = heappop(heap)
-
-        print(time, steps, row, column)
-        # if time == 5:
-        #     breakpoint()
+    while heap:
+        time, row, column = heappop(heap)
 
         if (row, column, time) in visited:
             continue
 
         visited.add((row, column, time))
 
-        # we found the exit
-        if (row, column) == end:
-            return time
-
         # get next valley state
         next_valley_state = valley.state_at_time(time + 1)
-
-        # add state when we wait
-        heappush(heap, (time + 1, steps, row, column))
 
         # determine where to go next
         for new_row, new_column in determine_next_positions(
             (row, column), next_valley_state, start
         ):
-            print("\tadd new position", new_row, new_column)
-            heappush(heap, (time + 1, steps + 1, new_row, new_column))
+            # we found the exit
+            if (new_row, new_column) == end:
+                return time + 1
+
+            heappush(heap, (time + 1, new_row, new_column))
 
     return None
 
@@ -193,7 +239,11 @@ def solve_part_one(lines: list[str], example: bool) -> int:
 
     valley = Valley(initial_state=state, max_row=max_row, max_column=max_column)
 
-    return solve_dijkstra(start=start, end=end, valley=valley)
+    valley.print_state(state)
+
+    # return solve_dijkstra(start=start, end=end, valley=valley)
+
+    return solve_bfs(start=start, end=end, valley=valley)
 
 
 def solve_part_two(lines: list[str], example: bool) -> int:
