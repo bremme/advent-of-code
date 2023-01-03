@@ -66,18 +66,7 @@ def print_elves(elves):
     print()
 
 
-def solve_part_one(lines: list[str], example: bool) -> int:
-    # lines = [
-    #     ".....",
-    #     "..##.",
-    #     "..#..",
-    #     ".....",
-    #     "..##.",
-    #     ".....",
-    # ]
-
-    elves = parse(lines)
-
+def move_elves(elves, rounds=None, part_two=False):
     directions_to_consider = [
         (N, NE, NW),
         (S, SE, SW),
@@ -85,11 +74,9 @@ def solve_part_one(lines: list[str], example: bool) -> int:
         (E, NE, SE),
     ]
 
-    number_of_rounds = 10000
-
     # print_elves(elves)
 
-    for round in range(number_of_rounds):
+    for round in range(1, rounds + 1):
         elve_positions = set(elves)
         proposed_positions = dict()
 
@@ -134,14 +121,32 @@ def solve_part_one(lines: list[str], example: bool) -> int:
             elves[elve_id] = proposed_position
             moved_elves += 1
 
-        if moved_elves == 0:
-            breakpoint()
+        if part_two is True and moved_elves == 0:
+            return round
 
         # rotate directions to consider
         directions_to_consider = directions_to_consider[1:] + directions_to_consider[:1]
 
         # print elves
         # print_elves(elves)
+    return rounds
+
+
+def solve_part_one(lines: list[str], example: bool) -> int:
+    # lines = [
+    #     ".....",
+    #     "..##.",
+    #     "..#..",
+    #     ".....",
+    #     "..##.",
+    #     ".....",
+    # ]
+
+    elves = parse(lines)
+
+    rounds = 10
+
+    move_elves(elves=elves, rounds=rounds, part_two=False)
 
     elve_positions = set(elves)
 
@@ -160,4 +165,10 @@ def solve_part_one(lines: list[str], example: bool) -> int:
 
 
 def solve_part_two(lines: list[str], example: bool) -> int:
-    pass
+    elves = parse(lines)
+
+    rounds = 1_000_000
+
+    round = move_elves(elves=elves, rounds=rounds, part_two=True)
+
+    return round
