@@ -1,3 +1,4 @@
+import math
 from functools import cache
 
 
@@ -46,29 +47,23 @@ def decimal_to_snafu(decimal: int) -> str:
     #  0 *   5 =    0  =  975        975 - 976 =  -1
     #  1 *   1 =    1  =  976        976 - 976 =   0
 
-    from bisect import bisect_left
-
     base = 5
     snarfu = ""
-    remainder = decimal
     total = 0
 
     # find largest exponent
-
-    exponents = [base**e for e in range(100)]
-    exponent = bisect_left(exponents, remainder) - 1
+    exponent = int(math.log(decimal) // math.log(base))
 
     while exponent >= 0:
-        # find digit
-        # which digit given the smallest remainder
+        # find digit, which digit given the smallest remainder
         remainders = []
         for multiplier, symbol in reverse_lookup.items():
             value = multiplier * base**exponent
             new_total = total + value
-            new_remainder = new_total - decimal
-            remainders.append((abs(new_remainder), new_remainder, new_total, symbol))
-        # breakpoint()
-        _, remainder, total, symbol = sorted(remainders)[0]
+            remainder = new_total - decimal
+            remainders.append((abs(remainder), new_total, symbol))
+
+        _, total, symbol = sorted(remainders)[0]
         snarfu += symbol
         exponent -= 1
 
@@ -81,7 +76,6 @@ def solve_part_one(lines: list[str], example: bool) -> int:
         total += snafu_to_decimal(line)
 
     return decimal_to_snafu(total)
-    return decimal_to_snafu(976)
 
 
 def solve_part_two(lines: list[str], example: bool) -> int:
