@@ -75,6 +75,7 @@ edge based technique
 
 * Dijkstra
     * day 12: Hill Climbing Algorithm
+    * day 24: Blizzward Basin
 
 * Binairy search
     * day 21: Monkey Math

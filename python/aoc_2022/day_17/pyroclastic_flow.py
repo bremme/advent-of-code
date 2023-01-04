@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Generator
 
+from aoc_2022.day_14.regolith_reservoir_set import Coordinate
+
 logger = logging.getLogger(__file__)
 
 
@@ -260,12 +262,35 @@ class Chamber:
         self._jet_index = 0
         self._rock_came_to_rest = False
         self.rock = None
+        self.previous_rock = None
         self.bottom_row = self.height - 1
 
         self.num_rocks = 0
         self.num_yet_roll_overs = 0
 
+    def get_state_signature(self):
+
+        rock_coordinates = set()
+
+        if len(self.rocks) == 0:
+            row_offset = self.height
+        else:
+            row_offset = min_row(self.rocks)
+
+        for i, coordinate in enumerate(sorted(self.rocks)):
+            rock_coordinates.add((coordinate[0] - row_offset, coordinate[1]))
+            # get approximately 10 rocks
+            if i == (10 * 4):
+                break
+
+        # get something hashable which describes the type of rock
+        grid = "|".join(self.previous_rock.grid)
+
+        # mix the type of rock the jet index and the ~last 10 rocks
+        return grid, self._jet_index, frozenset(rock_coordinates)
+
     def add_rock(self, rock: Rock):
+
         self._rock_came_to_rest = False
         self.rock = rock
         self.num_rocks += 1
@@ -319,6 +344,7 @@ class Chamber:
             self.rock.undo_move()
             self.rocks.update(self.rock.coordinates)
             self._rock_came_to_rest = True
+            self.previous_rock = self.rock
             self.rock = None
             logger.debug("Rock falls 1 unit, causing it to come to rest:")
             return
@@ -390,32 +416,95 @@ def solve_part_one(lines: list[str], example: bool):
 
         chamber.add_rock(rock)
 
-        if i == 0:
-            logger.debug("The first rock begins falling:")
-        else:
-            logger.debug("A new rock begins falling:")
+        # if i == 0:
+        #     logger.debug("The first rock begins falling:")
+        # else:
+        #     logger.debug("A new rock begins falling:")
 
-        chamber.print(printer=logger.debug)
+        # chamber.print(printer=logger.debug)
 
         # while rock has not come to rest
         while not chamber.did_rock_came_to_rest():
 
             # pushed by jet
             chamber.push_rock_by_jet()
-            chamber.print(printer=logger.debug)
+            # chamber.print(printer=logger.debug)
 
             # fall down
             chamber.move_rock_down()
-            chamber.print(printer=logger.debug)
+    chamber.print(printer=logger.debug)
 
     return chamber.get_height_tower_of_rocks()
 
 
 def solve_part_two(lines: list[str], example: bool):
-    # try to calculate when the pattern repeats
+    max_rock_height = 4
+    number_of_rocks = 10000
+    chamber_width = 7 + 2
+    chamber_height = number_of_rocks * max_rock_height
 
-    # it repeats if
-    breakpoint()
+    jet_pattern = lines[0]
 
-    # state
-    # jet index, rock index and top 20 rows
+    symbols_set = SymbolSet(symbols=SymbolSetSymbols.COLORS)
+
+    generator = RockGenerator(symbol_set=symbols_set)
+
+    chamber = Chamber(
+        width=chamber_width,
+        height=chamber_height,
+        jet_pattern=jet_pattern,
+        symbol_set=symbols_set,
+    )
+
+    signatures = {}
+
+    rocks_added = 0
+
+    # find repeating cycles
+    while True:
+
+        rock = generator.next_rock()
+
+        chamber.add_rock(rock)
+
+        rocks_added += 1
+
+        while not chamber.did_rock_came_to_rest():
+            chamber.push_rock_by_jet()
+            chamber.move_rock_down()
+
+        # get and compare signature
+        signature = chamber.get_state_signature()
+
+        if signature in signatures:
+            previous_rocks_added, previous_height = signatures[signature]
+            rocks_cycle = rocks_added - previous_rocks_added
+            print(
+                f"found equal signature {rocks_added}, {previous_rocks_added} -> {rocks_cycle}"
+            )
+            break
+
+        signatures[signature] = rocks_added, chamber.get_height_tower_of_rocks()
+
+    # 3146
+    height_cycle = chamber.get_height_tower_of_rocks() - previous_height
+
+    rocks_left = 1_000_000_000_000 - rocks_added
+
+    # how many cycles will fit into rocks left
+    num_cycles = rocks_left // rocks_cycle
+
+    # how many additional rocks do we have to drop
+    new_rocks_left = rocks_left % rocks_cycle
+
+    for rock in generator.rocks(new_rocks_left):
+
+        chamber.add_rock(rock)
+
+        while not chamber.did_rock_came_to_rest():
+            chamber.push_rock_by_jet()
+            chamber.move_rock_down()
+
+    final_height = chamber.get_height_tower_of_rocks()
+
+    return final_height + (num_cycles * height_cycle)
