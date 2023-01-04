@@ -130,6 +130,4 @@ def solve_part_two(lines: list[str], example: bool) -> int:
 
     part2 = game2.height + (fake_sections * dh)
 
-    breakpoint()
-
     return part2
