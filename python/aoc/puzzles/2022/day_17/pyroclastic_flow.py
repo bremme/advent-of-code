@@ -3,8 +3,6 @@ from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Generator
 
-from aoc.day_14.regolith_reservoir_set import Coordinate
-
 logger = logging.getLogger(__file__)
 
 

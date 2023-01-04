@@ -40,14 +40,14 @@ class PuzzleCollection:
 
 class PuzzleFinder:
     @staticmethod
-    def find_puzzles(root_path: Path) -> PuzzleCollection:
+    def find_puzzles(root_path: Path, year: int) -> PuzzleCollection:
         NUM_ADVENT_DAYS = 25
 
         puzzles = []
 
         for day in range(1, NUM_ADVENT_DAYS + 1):
 
-            module_dir = root_path / f"day_{day}"
+            module_dir = root_path / "puzzles" / f"{year}" / f"day_{day}"
 
             if not module_dir.exists():
                 continue
@@ -59,7 +59,9 @@ class PuzzleFinder:
 
             default_module_name = PuzzleFinder.remove_default_module_name(module_names)
 
-            default_module = PuzzleFinder.load_module(default_module_name, day=day)
+            default_module = PuzzleFinder.load_module(
+                default_module_name, day=day, year=year
+            )
 
             title = default_module_name.replace("_", " ").title()
 
@@ -67,7 +69,7 @@ class PuzzleFinder:
 
             for module_name in module_names:
                 name = module_name.split(f"{default_module_name}_")[-1]
-                module = PuzzleFinder.load_module(module_name, day=day)
+                module = PuzzleFinder.load_module(module_name, day=day, year=year)
                 solutions.append(PuzzleSolutionVariant(name=name, module=module))
 
             puzzles.append(Puzzle(day=day, title=title, solutions=solutions))
@@ -95,5 +97,5 @@ class PuzzleFinder:
         return module_names.pop(module_names.index(min(module_names, key=len)))
 
     @staticmethod
-    def load_module(module_name: str, day: int):
-        return importlib.import_module(f"aoc.day_{day}.{module_name}")
+    def load_module(module_name: str, day: int, year: int):
+        return importlib.import_module(f"aoc.puzzles.{year}.day_{day}.{module_name}")

@@ -39,12 +39,14 @@ class Runner:
     def __init__(self, args):
 
         # get puzzle
-        self.puzzle = PuzzleFinder.find_puzzles(PACKAGE_ROOT).get_puzzle(args.day)
+        self.year = 2022
+
+        self.puzzle = PuzzleFinder.find_puzzles(
+            PACKAGE_ROOT, year=self.year
+        ).get_puzzle(args.day)
         self.variant = args.variant
         self.part = args.part
         self.example = args.example
-
-        self.year = 2022
 
         self.debug = args.debug
         self.profile = args.profile
