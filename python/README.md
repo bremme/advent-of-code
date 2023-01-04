@@ -75,3 +75,6 @@ edge based technique
 
 * Dijkstra
     * day 12: Hill Climbing Algorithm
+
+* Binairy search
+    * day 21: Monkey Math

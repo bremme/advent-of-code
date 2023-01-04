@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from numpy import gradient
+
 
 @dataclass
 class Monkey:
@@ -20,7 +22,7 @@ def subtract(a, b):
 
 
 def divide(a, b):
-    return a // b
+    return a / b
 
 
 def multiply(a, b):
@@ -58,7 +60,7 @@ def parse(lines) -> dict[str, Monkey]:
     return monkeys
 
 
-def find_number_monkey_yells(monkey, monkeys: list[Monkey]):
+def find_number_monkey_yells(monkey, monkeys: list[Monkey]) -> float:
 
     if monkey.number is not None:
         return monkey.number
@@ -69,18 +71,6 @@ def find_number_monkey_yells(monkey, monkeys: list[Monkey]):
     number_two = find_number_monkey_yells(monkeys[name_two], monkeys=monkeys)
 
     return perform_operation(monkey.operator, number_one, number_two)
-
-    if monkey.operator == "+":
-        return number_one + number_two
-
-    if monkey.operator == "-":
-        return number_one - number_two
-
-    if monkey.operator == "/":
-        return number_one // number_two
-
-    if monkey.operator == "*":
-        return number_one * number_two
 
 
 def is_monkey_waiting_for_other_monkey(monkey: Monkey, other_monkey: Monkey, monkeys):
@@ -102,10 +92,58 @@ def is_monkey_waiting_for_other_monkey(monkey: Monkey, other_monkey: Monkey, mon
     return False
 
 
+def use_binairy_search_to_find_what_monkey_needs_to_yell(
+    monkey, monkey_to_match, number_to_match, monkeys
+):
+    low = -1e20
+    high = 1e20
+    guess = monkey.number
+    iterations = 0
+    max_iterations = 1e6
+
+    # find gradient
+    monkey.number = low
+    low_number = find_number_monkey_yells(monkey_to_match, monkeys)
+
+    monkey.number = high
+    high_number = find_number_monkey_yells(monkey_to_match, monkeys)
+
+    if high_number > low_number:
+        positive_gradient = True
+    else:
+        positive_gradient = False
+
+    while iterations < max_iterations:
+        monkey.number = guess
+
+        number = find_number_monkey_yells(monkey_to_match, monkeys)
+
+        if number == number_to_match:
+            return monkey.number
+
+        # determine new guess
+        if positive_gradient:
+            if number > number_to_match:
+                high = guess
+            else:
+                low = guess
+        else:
+            if number > number_to_match:
+                low = guess
+            else:
+                high = guess
+
+        guess = (high + low) // 2
+
+        iterations += 1
+
+    raise RuntimeError("Max iterations reached")
+
+
 def solve_part_one(lines, example):
     monkeys = parse(lines)
 
-    return find_number_monkey_yells(monkeys["root"], monkeys)
+    return int(find_number_monkey_yells(monkeys["root"], monkeys))
 
 
 def solve_part_two(lines, example):
@@ -120,45 +158,20 @@ def solve_part_two(lines, example):
     left_monkey = monkeys[left_monkey_name]
     right_monkey = monkeys[right_monkey_name]
 
-    part_of_left = is_monkey_waiting_for_other_monkey(left_monkey, you, monkeys)
+    humn_is_part_of_left = is_monkey_waiting_for_other_monkey(left_monkey, you, monkeys)
 
-    if part_of_left:
+    if humn_is_part_of_left:
         number_to_match = find_number_monkey_yells(right_monkey, monkeys)
-        last_monkey = left_monkey
+        new_root_monkey = left_monkey
     else:
         number_to_match = find_number_monkey_yells(left_monkey, monkeys)
-        last_monkey = right_monkey
+        new_root_monkey = right_monkey
 
-    # find number from other tree
-
-    # find number to yell
-    # choose a number
-    # move up the tree
-    # if number too high break
-    # increase number
-    # if end and number too low
-    # decrease number
-
-    # find number to yell
-
-    guess = number_to_match
-
-    while True:
-        you.number = guess
-
-        number = find_number_monkey_yells(last_monkey, monkeys)
-
-        breakpoint()
-
-        print(f"guess {guess} -> number {number}")
-
-        if number > number_to_match:
-            factor = (number - number_to_match) / 100
-            guess -= 1
-        else:
-            guess += 1
-
-        if number == number_to_match:
-            break
-
-    return guess
+    return int(
+        use_binairy_search_to_find_what_monkey_needs_to_yell(
+            monkey=you,
+            monkey_to_match=new_root_monkey,
+            number_to_match=number_to_match,
+            monkeys=monkeys,
+        )
+    )
