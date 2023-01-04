@@ -1,6 +1,6 @@
 import unittest
 
-from aoc_2022.utils import utils
+from aoc.utils import utils
 
 
 class TestUtils(unittest.TestCase):

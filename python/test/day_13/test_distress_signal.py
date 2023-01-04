@@ -1,7 +1,7 @@
 import unittest
 
-from aoc_2022.day_13.distress_signal import solve_part_one, solve_part_two
-from aoc_2022.utils import utils
+from aoc.day_13.distress_signal import solve_part_one, solve_part_two
+from aoc.utils import utils
 
 DAY = 13
 YEAR = 2022

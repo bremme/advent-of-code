@@ -1,7 +1,7 @@
 import unittest
 
-from aoc_2022.day_2.rock_paper_scissors import solve_part_one, solve_part_two
-from aoc_2022.utils import utils
+from aoc.day_2.rock_paper_scissors import solve_part_one, solve_part_two
+from aoc.utils import utils
 
 DAY = 2
 YEAR = 2022

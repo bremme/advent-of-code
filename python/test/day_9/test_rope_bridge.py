@@ -1,13 +1,13 @@
 import unittest
 
-from aoc_2022.day_9.rope_bridge import (
+from aoc.day_9.rope_bridge import (
     calculate_tail_movement,
     determine_playground,
     determine_playground_2,
     parse_series_of_motions,
     solve_part_one,
 )
-from aoc_2022.utils import utils
+from aoc.utils import utils
 
 DAY = 9
 YEAR = 2022

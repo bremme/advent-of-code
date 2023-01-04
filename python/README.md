@@ -1,24 +1,14 @@
-Run a single day
-    run part one only
-        run example data
-        run real data
-        run custom data
-    run part two only
-        run example data
-        run real data
-        run custom data
-Run all days
-Test after run
+# Installation
 
-https://realpython.com/python-advent-of-code/
+pip install -e .
 
+# Usage
 
-Coordinate systems
+aoc --help
 
-XY coordinates with y = down and x = right
+aoc run --day 17 --part 2 --example --assert
 
-RC coordiantes with row = right and column = down
-
+# TODO
 
 Overall goals
 
@@ -38,14 +28,30 @@ Overall goals
 
 
 # TODO
-* auto complete variants
-* check invalid variant names
-* list variants
-* add day template
+
+* aoc cli
+    * run sub commands
+        * auto complete variants
+        * run all days
+        * upload answer
+        * save answer (when correct)
+    * list sub command
+        * variants
+    * generate sub command
+        *  day(s) stubs
+    * download
+        * download data
 * add animations
 * data download via cli
 * answer upload via cli
 * store answer when right
+* improve logging
+    * add extra level
+    * dynamicly change level based on example or not
+* utilities
+    * for several coordinate systems (row, column vs x, y etc.)
+    * remove duplication form days
+
 
 # General things I've learnerd
 
@@ -69,7 +75,6 @@ edge based technique
     * day 19: Not Enough Minerals
     * day 24: Blizzward Basin
 
-
 * Double linked list
     * day 20: Grove Positioning System
 
@@ -79,3 +84,5 @@ edge based technique
 
 * Binairy search
     * day 21: Monkey Math
+
+Optimizations by finding patterns in day 17 for example.

@@ -1,13 +1,13 @@
 import unittest
 
-from aoc_2022.day_3.rucksack_reorganization import (
+from aoc.day_3.rucksack_reorganization import (
     find_items_in_both_compartments,
     get_item_priority,
     solve_part_one,
     solve_part_two,
     split_rucksack_content_into_compartments,
 )
-from aoc_2022.utils import utils
+from aoc.utils import utils
 
 DAY = 3
 YEAR = 2022

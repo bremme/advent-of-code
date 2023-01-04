@@ -1,7 +1,7 @@
 import unittest
 
-from aoc_2022.day_8.treetop_tree_house import solve_part_one, solve_part_two
-from aoc_2022.utils import utils
+from aoc.day_8.treetop_tree_house import solve_part_one, solve_part_two
+from aoc.utils import utils
 
 DAY = 8
 YEAR = 2022
