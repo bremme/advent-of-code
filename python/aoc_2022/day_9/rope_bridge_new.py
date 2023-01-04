@@ -10,11 +10,11 @@ X = None
 
 
 TAIL_DIRECTIONS = [
-    [X, SE, S, SW, X],
+    [SE, SE, S, SW, SW],
     [SE, X, X, X, SW],
     [E, X, X, X, W],
     [NE, X, X, X, NW],
-    [X, NE, N, NW, X],
+    [NE, NE, N, NW, NW],
 ]
 
 
@@ -42,6 +42,28 @@ def determine_tail_movement(head, tail):
     # tail is 2 right of head     0,  2     -> W (move left)
 
     return TAIL_DIRECTIONS[row][column]
+
+
+def print_robe(knots: list[tuple[int, int]]):
+    min_row = min(knots, key=lambda c: c[0])[0]
+    max_row = max(knots, key=lambda c: c[0])[0]
+    min_column = min(knots, key=lambda c: c[1])[1]
+    max_column = max(knots, key=lambda c: c[1])[1]
+
+    for row in range(min_row - 5, max_row + 6):
+        line = []
+        for column in range(min_column - 5, max_column + 6):
+            if (row, column) in knots:
+                index = knots.index((row, column))
+                if index == 0:
+                    line.append("H")
+                else:
+                    line.append(str(index))
+            else:
+                line.append(".")
+        print("".join(line))
+
+    print()
 
 
 def solve_part_one(lines: list[str], example: bool) -> int:
@@ -86,19 +108,22 @@ def solve_part_two(lines: list[str], example: bool) -> int:
     head = start
     tails = [start] * (number_of_knots - 1)
 
-    tail_positions.add(tail)
+    tail_positions.add(tails[-1])
 
-    for head_move, steps in motions:
+    for round, (head_move, steps) in enumerate(motions):
 
         # move
         for _ in range(steps):
+
             # move head
             head = head[0] + head_move[0], head[1] + head_move[1]
 
             # move knots
             current_head = head
 
-            for tail in tails:
+            for tail_index in range(len(tails)):
+
+                tail = tails[tail_index]
 
                 tail_move = determine_tail_movement(head=current_head, tail=tail)
 
@@ -106,8 +131,9 @@ def solve_part_two(lines: list[str], example: bool) -> int:
                 if tail_move:
                     tail = tail[0] + tail_move[0], tail[1] + tail_move[1]
 
+                tails[tail_index] = tail
                 current_head = tail
 
-            tail_positions.add(tail)
+            tail_positions.add(tails[-1])
 
     return len(tail_positions)

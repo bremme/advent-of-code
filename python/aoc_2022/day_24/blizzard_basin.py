@@ -47,11 +47,6 @@ def parse(lines: list[str]):
     return valley, (max_row, max_column)
 
 
-# @dataclass
-# class ValleyState:
-#     blizzard_north: set[tuple[int, int]]
-
-
 class Valley:
     def __init__(self, initial_state, max_row, max_column) -> None:
         self.valley_state = {0: initial_state}
@@ -79,10 +74,6 @@ class Valley:
         previous_state = self.valley_state[time - 1]
 
         next_state: dict[str, set[tuple[int, int]]] = {
-            "^": set(),
-            ">": set(),
-            "v": set(),
-            "<": set(),
             "#": previous_state["#"],
         }
 
@@ -163,6 +154,7 @@ class Valley:
 
 
 def determine_next_positions(position, valley_state, max_rows):
+
     # try moving N, E, S, W or stay
     for move in [N, E, S, W, (0, 0)]:
         posible_next_position = position[0] + move[0], position[1] + move[1]
@@ -177,6 +169,7 @@ def determine_next_positions(position, valley_state, max_rows):
             continue
         if posible_next_position in valley_state["#"]:
             continue
+
         if posible_next_position[0] == -1:
             continue
 
@@ -242,7 +235,7 @@ def solve_dijkstra(start, end, valley: Valley):
 
         # determine where to go next
         for new_row, new_column in determine_next_positions(
-            (row, column), next_valley_state, start
+            (row, column), next_valley_state, valley.max_row
         ):
             # we found the exit
             if (new_row, new_column) == end:

@@ -105,11 +105,11 @@ def calculate_tail_movement(head, tail):
     # center is 2, 2
     DIRECTION_TABLE = numpy.array(
         [
-            [None, "SE", "S", "SW", None],
+            ["SE", "SE", "S", "SW", "SW"],
             ["SE", "0", "0", "0", "SW"],
             ["E", "0", "0", "0", "W"],
             ["NE", "0", "0", "0", "NW"],
-            [None, "NE", "N", "NW", None],
+            ["NE", "NE", "N", "NW", "NW"],
         ]
     )
 
@@ -254,7 +254,7 @@ def print_playground(size, knot_positions):
             pass
 
 
-def solve_part_two(lines):
+def solve_part_two(lines, example):
     series_of_motions = parse_series_of_motions(lines)
     start, size = determine_playground(series_of_motions)
     print(f"Head starts at {start} on playground with size {size}")
