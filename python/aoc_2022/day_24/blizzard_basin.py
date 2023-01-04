@@ -16,11 +16,8 @@
 #     list of blizzards, position,
 
 
-from asyncio import start_server
 from collections import deque
-from dataclasses import dataclass
 from heapq import heappop, heappush
-from turtle import st
 
 N = (-1, 0)
 E = (0, 1)
@@ -90,14 +87,38 @@ class Valley:
         }
 
         for tile_type, coordinates in previous_state.items():
-            if tile_type == "^":
-                next_state[tile_type] = self._move_up(coordinates)
-            if tile_type == ">":
+
+            # Optimized
+            if tile_type in "^v":
+                # check if we need to recalculate this state
+                if time >= (self.max_row - 1):
+                    index = time % (self.max_row - 1)
+                    next_state[tile_type] = self.valley_state[index][tile_type]
+                elif tile_type == "^":
+                    next_state[tile_type] = self._move_up(coordinates)
+                elif tile_type == "v":
+                    next_state[tile_type] = self._move_down(coordinates)
+                continue
+
+            # check if we need to recalculate this state
+            if time >= (self.max_column - 1):
+                index = time % (self.max_column - 1)
+                next_state[tile_type] = self.valley_state[index][tile_type]
+            elif tile_type == ">":
                 next_state[tile_type] = self._move_right(coordinates)
-            if tile_type == "v":
-                next_state[tile_type] = self._move_down(coordinates)
-            if tile_type == "<":
+            elif tile_type == "<":
                 next_state[tile_type] = self._move_left(coordinates)
+
+            # NON optimized
+            # if tile_type == "^":
+            #     next_state[tile_type] = self._move_up(coordinates)
+            # if tile_type == "v":
+            #     next_state[tile_type] = self._move_down(coordinates)
+
+            # if tile_type == ">":
+            #     next_state[tile_type] = self._move_right(coordinates)
+            # if tile_type == "<":
+            #     next_state[tile_type] = self._move_left(coordinates)
 
         self.valley_state[time] = next_state
 
@@ -141,7 +162,7 @@ class Valley:
         return set(new_coordinates)
 
 
-def determine_next_positions(position, valley_state, start):
+def determine_next_positions(position, valley_state, max_rows):
     # try moving N, E, S, W or stay
     for move in [N, E, S, W, (0, 0)]:
         posible_next_position = position[0] + move[0], position[1] + move[1]
@@ -156,15 +177,16 @@ def determine_next_positions(position, valley_state, start):
             continue
         if posible_next_position in valley_state["#"]:
             continue
-        # we can't move up from the start position
-        if posible_next_position == (start[0] - 1, start[1]):
+        if posible_next_position[0] == -1:
             continue
-        # we can't move down from the end position
+
+        if posible_next_position[0] == (max_rows + 1):
+            continue
 
         yield posible_next_position
 
 
-def solve_bfs(start, end, valley: Valley):
+def solve_bfs(start, end, valley: Valley, global_time_offset=0):
 
     visited = set()
 
@@ -184,11 +206,11 @@ def solve_bfs(start, end, valley: Valley):
         visited.add((time, row, column))
 
         # get next valley state
-        next_valley_state = valley.state_at_time(time + 1)
+        next_valley_state = valley.state_at_time(time + 1 + global_time_offset)
 
         # determine where to go next
         for new_row, new_column in determine_next_positions(
-            (row, column), next_valley_state, start
+            (row, column), next_valley_state, valley.max_row
         ):
             # we found the exit
             if (new_row, new_column) == end:
@@ -247,4 +269,25 @@ def solve_part_one(lines: list[str], example: bool) -> int:
 
 
 def solve_part_two(lines: list[str], example: bool) -> int:
-    pass
+    state, (max_row, max_column) = parse(lines)
+
+    start = (0, 1)
+    end = (max_row, max_column - 1)
+
+    valley = Valley(initial_state=state, max_row=max_row, max_column=max_column)
+
+    first_trip = solve_bfs(start=start, end=end, valley=valley)
+    print(f"first_trip = {first_trip}")
+    # breakpoint()
+
+    trip_back = solve_bfs(
+        start=end, end=start, valley=valley, global_time_offset=first_trip
+    )
+    print(f"trip_back = {trip_back}")
+
+    trip_back_to_goal = solve_bfs(
+        start=start, end=end, valley=valley, global_time_offset=trip_back + first_trip
+    )
+    print(f"trip_back_to_goal = {trip_back_to_goal}")
+
+    return first_trip + trip_back + trip_back_to_goal
