@@ -66,41 +66,7 @@ def print_robe(knots: list[tuple[int, int]]):
     print()
 
 
-def solve_part_one(lines: list[str], example: bool) -> int:
-
-    motions = parse(lines)
-    tail_positions = set()
-
-    start = 0, 0
-
-    head = start
-    tail = start
-
-    tail_positions.add(tail)
-
-    for head_move, steps in motions:
-
-        # move
-        for _ in range(steps):
-            # move head
-            head = head[0] + head_move[0], head[1] + head_move[1]
-
-            tail_move = determine_tail_movement(head, tail)
-
-            if not tail_move:
-                continue
-
-            tail = tail[0] + tail_move[0], tail[1] + tail_move[1]
-
-            tail_positions.add(tail)
-
-    return len(tail_positions)
-
-
-def solve_part_two(lines: list[str], example: bool) -> int:
-    number_of_knots = 10
-
-    motions = parse(lines)
+def solve(motions, number_of_knots):
     tail_positions = set()
 
     start = 0, 0
@@ -137,3 +103,23 @@ def solve_part_two(lines: list[str], example: bool) -> int:
             tail_positions.add(tails[-1])
 
     return len(tail_positions)
+
+
+def solve_part_one(lines: list[str], example: bool) -> int:
+    motions = parse(lines)
+
+    number_of_knots = 2
+
+    num_tail_positions = solve(motions=motions, number_of_knots=number_of_knots)
+
+    return num_tail_positions
+
+
+def solve_part_two(lines: list[str], example: bool) -> int:
+    motions = parse(lines)
+
+    number_of_knots = 10
+
+    num_tail_positions = solve(motions=motions, number_of_knots=number_of_knots)
+
+    return num_tail_positions
