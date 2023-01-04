@@ -61,16 +61,14 @@ def decimal_to_snafu(decimal: int) -> str:
     while exponent >= 0:
         # find digit
         # which digit given the smallest remainder
-        new_remainders = []
+        remainders = []
         for multiplier, symbol in reverse_lookup.items():
             value = multiplier * base**exponent
             new_total = total + value
             new_remainder = new_total - decimal
-            new_remainders.append(
-                (abs(new_remainder), new_remainder, new_total, symbol)
-            )
+            remainders.append((abs(new_remainder), new_remainder, new_total, symbol))
         # breakpoint()
-        _, remainder, total, symbol = sorted(new_remainders)[0]
+        _, remainder, total, symbol = sorted(remainders)[0]
         snarfu += symbol
         exponent -= 1
 
