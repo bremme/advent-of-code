@@ -46,3 +46,32 @@ Overall goals
 * data download via cli
 * answer upload via cli
 * store answer when right
+
+# General things I've learnerd
+
+Breadth-first search (BFS):
+https://en.wikipedia.org/wiki/Breadth-first_search
+
+Depth-first search (DFS)
+https://en.wikipedia.org/wiki/Depth-first_search
+
+
+https://www.geeksforgeeks.org/difference-between-bfs-and-dfs/
+
+BFS uses a queue with first in first out. slower?
+vertex bases technique
+
+DFS uses a stack
+edge based technique
+
+* DFS
+    * day 16: Probascidea Volcanium
+    * day 19: Not Enough Minerals
+    * day 24: Blizzward Basin
+
+
+* Double linked list
+    * day 20: Grove Positioning System
+
+* Dijkstra
+    * day 12: Hill Climbing Algorithm

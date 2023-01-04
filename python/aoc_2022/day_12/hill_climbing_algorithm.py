@@ -106,6 +106,7 @@ def parse_height_map(lines) -> Map:
 
 
 def find_shortest_path(map: Map, start, is_end, direction="up"):
+    # dijkstra ?
 
     heap = []
 

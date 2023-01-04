@@ -1,4 +1,4 @@
-def parse(lines: list[str]) -> list[list[int]]:
+def parse(lines: list[str]) -> list[dict[str, int]]:
     cubes = []
     for line in lines:
         cube = {k: v for k, v in zip("xyz", map(int, line.split(",")))}
