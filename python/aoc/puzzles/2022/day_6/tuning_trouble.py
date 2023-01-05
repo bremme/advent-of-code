@@ -18,12 +18,12 @@ def find_marker(buffer, num_chars):
             return i + num_chars
 
 
-def solve_part_one(lines, example=False):
+def solve_part_one(lines: list[str], example: bool) -> int:
     start_message_marker_distinct_chars = 4
     return find_markers(lines, num_chars=start_message_marker_distinct_chars)
 
 
-def solve_part_two(lines):
+def solve_part_two(lines: list[str], example: bool) -> int:
     start_message_marker_distinct_chars = 14
     return find_markers(lines, num_chars=start_message_marker_distinct_chars)
 

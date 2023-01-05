@@ -53,6 +53,8 @@ Overall goals
 * utilities
     * for several coordinate systems (row, column vs x, y etc.)
     * remove duplication form days
+* unit test
+    * use answer files
 
 
 # General things I've learnerd

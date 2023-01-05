@@ -1,6 +1,5 @@
 import importlib
 from dataclasses import dataclass
-from operator import mod
 from pathlib import Path
 from types import ModuleType
 

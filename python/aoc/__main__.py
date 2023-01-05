@@ -29,9 +29,11 @@ def _add_run_parser(subparsers):
         "-v", "--verbose", action="store_true", help="Print more (debugging) output."
     )
 
-    run_parser.add_argument(
-        "-d", "--day", type=int, required=True, help="The puzzle day."
-    )
+    group = run_parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument("-a", "--all", action="store_true", help="Run all puzzles")
+    group.add_argument("-d", "--day", type=int, help="The puzzle day.")
+
     run_parser.add_argument(
         "-p", "--part", type=int, choices=[1, 2], help="Only run part one or two."
     )

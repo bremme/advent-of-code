@@ -176,7 +176,7 @@ def play_rounds(monkeys: list[Monkey], num_rounds, part):
     return monkey_business
 
 
-def solve_part_one(lines, example=False):
+def solve_part_one(lines: list[str], example: bool) -> int:
     monkeys = parse_monkeys(lines)
 
     monkey_business = play_rounds(monkeys=monkeys, num_rounds=20, part="one")
@@ -184,7 +184,7 @@ def solve_part_one(lines, example=False):
     return monkey_business
 
 
-def solve_part_two(lines):
+def solve_part_two(lines: list[str], example: bool) -> int:
     monkeys = parse_monkeys(lines)
 
     monkey_business = play_rounds(monkeys=monkeys, num_rounds=10_000, part="two")

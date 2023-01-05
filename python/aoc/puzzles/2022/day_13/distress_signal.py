@@ -128,7 +128,7 @@ def merge_sort(items):
         k += 1
 
 
-def solve_part_one(lines, example=False):
+def solve_part_one(lines: list[str], example: bool) -> int:
     packet_pair_index = 1
 
     packet_pairs_results = {True: [], False: []}
@@ -146,7 +146,7 @@ def solve_part_one(lines, example=False):
     return sum(packet_pairs_results[True])
 
 
-def solve_part_two(lines):
+def solve_part_two(lines: list[str], example: bool) -> int:
     packets = []
     for first, second in parse_handheld_packets(lines):
         packets.extend([first, second])

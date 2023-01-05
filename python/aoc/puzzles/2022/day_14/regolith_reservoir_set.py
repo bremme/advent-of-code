@@ -223,7 +223,7 @@ def simulate_sand(filled, max_y):
     return False
 
 
-def solve_part_one(lines, example=False):
+def solve_part_one(lines: list[str], example: bool) -> int:
     rocks = parse(lines)
 
     map = Map(rocks=rocks, start=Coordinate(row=0, column=500))
@@ -246,7 +246,7 @@ def solve_part_one(lines, example=False):
     return units_of_sand
 
 
-def solve_part_two(lines):
+def solve_part_two(lines: list[str], example: bool) -> int:
     rocks = parse(lines)
 
     map = Map(rocks=rocks, start=Coordinate(row=0, column=500))

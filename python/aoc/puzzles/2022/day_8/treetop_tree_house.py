@@ -167,7 +167,7 @@ def calculate_scenic_score(forest, row_index, col_index):
     )
 
 
-def solve_part_one(lines, example=False):
+def solve_part_one(lines: list[str], example: bool) -> int:
     forest_tree_height = parse_forest_tree_height(lines)
     forest_tree_visible = build_forest_tree_visible(forest_tree_height)
 
@@ -203,7 +203,7 @@ def solve_part_one(lines, example=False):
     return numpy.count_nonzero(forest_tree_visible == "Y")
 
 
-def solve_part_two(lines):
+def solve_part_two(lines: list[str], example: bool) -> int:
     # find tree with highest scenic score
     forest = parse_forest_tree_height(lines)
     scenic_scores = numpy.zeros(forest.shape)

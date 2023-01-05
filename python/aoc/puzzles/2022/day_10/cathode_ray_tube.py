@@ -135,7 +135,7 @@ def parse_instructions(lines):
     return instructions
 
 
-def solve_part_one(lines, example=False):
+def solve_part_one(lines: list[str], example: bool) -> int:
     instructions = parse_instructions(lines)
 
     memory = Memory(instructions=instructions)
@@ -147,7 +147,7 @@ def solve_part_one(lines, example=False):
     return cpu.total_signal_strength
 
 
-def solve_part_two(lines):
+def solve_part_two(lines: list[str], example: bool) -> int:
     instructions = parse_instructions(lines)
     memory = Memory(instructions=instructions)
     cpu = CPU(memory=memory)

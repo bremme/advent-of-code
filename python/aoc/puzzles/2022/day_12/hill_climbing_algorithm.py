@@ -133,7 +133,7 @@ def find_shortest_path(map: Map, start, is_end, direction="up"):
             heappush(heap, (distance + 1, destination[0], destination[1]))
 
 
-def solve_part_one(lines, example=False):
+def solve_part_one(lines: list[str], example: bool) -> int:
     map = parse_height_map(lines)
 
     # we finish
@@ -143,7 +143,7 @@ def solve_part_one(lines, example=False):
     return find_shortest_path(map, map.start, is_end)
 
 
-def solve_part_two(lines):
+def solve_part_two(lines: list[str], example: bool) -> int:
     map = parse_height_map(lines)
 
     # we finish when we found a tile with height = 0

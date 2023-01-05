@@ -1,7 +1,7 @@
 from aoc.utils import utils
 
 
-def parse_ranges(line: str) -> tuple[set]:
+def parse_ranges(line: str) -> tuple[set, set]:
     range_numbers = [int(e) for e in line.replace("-", ",").split(",")]
 
     first_start, first_end = range_numbers[:2]
@@ -13,7 +13,7 @@ def parse_ranges(line: str) -> tuple[set]:
     return set(first_range), set(second_range)
 
 
-def solve_part_two(lines: list[str]) -> None:
+def solve_part_two(lines: list[str], example: bool) -> int:
     num_overlapping_pairs = 0
 
     for line in lines:
@@ -25,7 +25,7 @@ def solve_part_two(lines: list[str]) -> None:
     return num_overlapping_pairs
 
 
-def solve_part_one(lines: list[str]) -> None:
+def solve_part_one(lines: list[str], example: bool) -> int:
     num_fully_contained_pairs = 0
 
     for line in lines:

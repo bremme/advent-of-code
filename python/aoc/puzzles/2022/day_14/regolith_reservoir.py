@@ -134,7 +134,7 @@ def add_floor(cave, source):
     return cave
 
 
-def solve_part_one(lines, example=False):
+def solve_part_one(lines: list[str], example: bool) -> int:
     source = 0, 500
 
     cave = parse_cave(lines)
@@ -154,7 +154,7 @@ def solve_part_one(lines, example=False):
     return units_of_sand
 
 
-def solve_part_two(lines):
+def solve_part_two(lines: list[str], example: bool) -> int:
     source = 0, 500
 
     cave = parse_cave(lines)

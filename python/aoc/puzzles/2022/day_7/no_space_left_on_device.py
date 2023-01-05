@@ -142,7 +142,7 @@ def find_directories_with_size(directory: Directory, threshold, comparison):
     return result
 
 
-def solve_part_one(lines, example=False):
+def solve_part_one(lines: list[str], example: bool) -> int:
     root = parse_puzzle_input(lines)
     maximum_size = 100_000
 
@@ -153,7 +153,7 @@ def solve_part_one(lines, example=False):
     return sum_of_small_directories
 
 
-def solve_part_two(lines):
+def solve_part_two(lines: list[str], example: bool) -> int:
     total_disk_space = 70_000_000
     required_free_space = 30_000_000
 

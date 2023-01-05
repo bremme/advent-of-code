@@ -1,6 +1,3 @@
-import sys
-from pathlib import Path
-
 from aoc.utils import utils
 
 
@@ -58,7 +55,7 @@ def get_crates_on_top(stacks):
     return "".join([stack[-1] for stack in stacks])
 
 
-def solve_part_one(lines, example=False):
+def solve_part_one(lines: list[str], example: bool) -> int:
     stacks = parse_stacks(lines)
 
     procedures = parse_procedures(lines)
@@ -73,7 +70,7 @@ def solve_part_one(lines, example=False):
     return crates_on_top
 
 
-def solve_part_two(lines):
+def solve_part_two(lines: list[str], example: bool) -> int:
     stacks = parse_stacks(lines)
 
     procedures = parse_procedures(lines)

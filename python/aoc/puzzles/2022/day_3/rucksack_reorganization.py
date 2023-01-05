@@ -46,7 +46,7 @@ def get_item_priority(item: str):
     raise ValueError(f"Item should be one [a-z|A-Z] character: '{item}'")
 
 
-def solve_part_one(lines, example=False):
+def solve_part_one(lines: list[str], example: bool) -> int:
     sum_of_priorities = 0
 
     for content in lines:
@@ -62,7 +62,7 @@ def solve_part_one(lines, example=False):
     return sum_of_priorities
 
 
-def solve_part_two(lines):
+def solve_part_two(lines: list[str], example: bool) -> int:
     NUM_ELVES_IN_GROUP = 3
     sum_of_priorities = 0
 
