@@ -5,6 +5,7 @@ This repo stores my [Advent of Code](https://adventofcode.com/) adventures. Adve
 # 2022
 
 * Python
-    * [Day 1](python/aoc/puzzles/2022/day_1)
+    * [Day 1](https://github.com/bremme/advent-of-code/tree/main/python/aoc/puzzles/2022/day_1)
+
 
 
