@@ -36,6 +36,7 @@ Overall goals
         * upload answer
         * save answer (when correct)
         * debug add breakpoint with line number
+        * run assert by default if answer exists
     * list sub command
         * variants
     * generate sub command

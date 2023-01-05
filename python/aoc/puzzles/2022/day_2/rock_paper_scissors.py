@@ -38,7 +38,7 @@ def calculate_score(opponent_shape, my_shape):
         return win_score + shape_score
 
 
-def determine_my_shape_for_given_outcome(opponent_shape, outcome):
+def determine_required_shape_for_outcome(opponent_shape, outcome):
     if outcome == "draw":
         return opponent_shape
 
@@ -61,7 +61,7 @@ def determine_my_shape_for_given_outcome(opponent_shape, outcome):
         return "Paper"
 
 
-def solve_part_one(lines, example=False):
+def solve_part_one(lines: list[str], example: bool) -> int:
     total_score = 0
 
     for line in lines:
@@ -71,13 +71,13 @@ def solve_part_one(lines, example=False):
         my_shape = my_shapes[my_encrypted_shape]
 
         score = calculate_score(opponent_shape, my_shape)
-        # print(line, score)
+
         total_score += score
 
     return total_score
 
 
-def solve_part_two(lines):
+def solve_part_two(lines: list[str], example: bool) -> int:
     total_score = 0
 
     for line in lines:
@@ -86,10 +86,10 @@ def solve_part_two(lines):
         opponent_shape = opponent_shapes[opponent_encrypted_shape]
         outcome = outcomes[encrypted_outcome]
 
-        my_shape = determine_my_shape_for_given_outcome(opponent_shape, outcome)
+        my_shape = determine_required_shape_for_outcome(opponent_shape, outcome)
 
         score = calculate_score(opponent_shape, my_shape)
-        # print(line, score)
+
         total_score += score
 
     return total_score

@@ -50,6 +50,7 @@ class Runner:
 
         self.debug = args.debug
         self.profile = args.profile
+        self.store_answer = args.store_answer
         self.assert_answer = args.assert_answer
 
         # read input data
@@ -96,6 +97,15 @@ class Runner:
                 f"Answer part one: {answer_part_one}\t(took {duration_ms:,.3f} ms)"
             )
 
+            if self.store_answer:
+                utils.store_puzzle_answer(
+                    day=self.puzzle.day,
+                    year=self.year,
+                    part=1,
+                    example=self.example,
+                    answer=answer_part_one,
+                )
+
             if self.assert_answer:
                 self._check_puzzle_answer(
                     part=1,
@@ -110,6 +120,15 @@ class Runner:
             logger.info(
                 f"Answer part two: {answer_part_two}\t(took {duration_ms:,.3f} ms)"
             )
+
+            if self.store_answer:
+                utils.store_puzzle_answer(
+                    day=self.puzzle.day,
+                    year=self.year,
+                    part=2,
+                    example=self.example,
+                    answer=answer_part_two,
+                )
 
             if self.assert_answer:
                 self._check_puzzle_answer(

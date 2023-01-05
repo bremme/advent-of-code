@@ -3,6 +3,7 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Union
 
 DATA_DIRECTORY = Path(__file__).parent.parent.parent.parent / "data"
 
@@ -40,7 +41,31 @@ def read_puzzle_input_file(input_file) -> list[str]:
         return [line for line in fh.read().splitlines()]
 
 
+def read_puzzle_answer_file(day: int, year: int, part: int, example: bool):
+    answer_file = (
+        DATA_DIRECTORY
+        / f"{year}"
+        / f"day_{day}"
+        / f"puzzle_answer{'_example' if example else ''}.json"
+    )
+
+    with open(answer_file, "r") as fh:
+        data = json.load(fh)
+
+    return data
+
+
 def read_puzzle_answer(day: int, year: int, part: int, example: bool):
+    parts = {1: "one", 2: "two"}
+
+    data = read_puzzle_answer_file(day, year, part, example)
+
+    return data[f"part_{parts[part]}"]
+
+
+def store_puzzle_answer(
+    day: int, year: int, part: int, example: bool, answer: Union[int, str]
+):
     answer_file = (
         DATA_DIRECTORY
         / f"{year}"
@@ -49,10 +74,16 @@ def read_puzzle_answer(day: int, year: int, part: int, example: bool):
     )
     parts = {1: "one", 2: "two"}
 
-    with open(answer_file, "r") as fh:
-        data = json.load(fh)
+    if answer_file.is_file():
+        with open(answer_file, "r") as fh:
+            data = json.load(fh)
+    else:
+        data = {"part_one": None, "part_two": None}
 
-        return data[f"part_{parts[part]}"]
+    data[f"part_{parts[part]}"] = answer
+
+    with open(answer_file, "w") as fh:
+        json.dump(data, fh, indent=4)
 
 
 def parse_args():

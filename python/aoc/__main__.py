@@ -63,6 +63,13 @@ def _add_run_parser(subparsers):
         help="Check the answer(s).",
     )
 
+    run_parser.add_argument(
+        "--store-answer",
+        action="store_true",
+        dest="store_answer",
+        help="Store the answer(s).",
+    )
+
 
 def _add_create_parser(subparsers):
     create_parser = subparsers.add_parser(
