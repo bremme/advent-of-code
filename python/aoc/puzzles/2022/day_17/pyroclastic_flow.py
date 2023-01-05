@@ -454,7 +454,7 @@ def solve_part_two(lines: list[str], example: bool):
         symbol_set=symbols_set,
     )
 
-    signatures = {}
+    signatures: dict = {}
 
     rocks_added = 0
 
@@ -484,7 +484,6 @@ def solve_part_two(lines: list[str], example: bool):
 
         signatures[signature] = rocks_added, chamber.get_height_tower_of_rocks()
 
-    # 3146
     height_cycle = chamber.get_height_tower_of_rocks() - previous_height
 
     rocks_left = 1_000_000_000_000 - rocks_added

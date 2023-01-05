@@ -35,6 +35,7 @@ Overall goals
         * run all days
         * upload answer
         * save answer (when correct)
+        * debug add breakpoint with line number
     * list sub command
         * variants
     * generate sub command
